@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pass CHubut - Sistema de Gestión de Pases</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-500 to-indigo-700 min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="max-w-md w-full glass rounded-3xl shadow-2xl overflow-hidden">
+
+        <div class="p-6 text-center border-b border-gray-200 bg-white/50">
+            <h1 class="text-3xl font-bold text-gray-800">Pass <span class="text-blue-600">CHubut</span></h1>
+            <p class="text-gray-500 text-sm mt-1">Portal Oficial de Accesos</p>
+        </div>
+
+        <div class="p-8 space-y-6">
+
+            <div id="welcome-view" class="text-center space-y-4">
+                <div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-qrcode text-4xl text-blue-600"></i>
+                </div>
+                <h2 class="text-xl font-semibold text-gray-700">Gestión Digital</h2>
+                <p class="text-gray-600">Acceda a sus credenciales de forma segura y simplificada.</p>
+
+                <button onclick="showSection('pass-view')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl transition duration-300 transform hover:scale-105 shadow-lg">
+                    Acceder a mis pases
+                </button>
+            </div>
+
+            <div id="pass-view" class="hidden space-y-6 animate-fade-in">
+                <div class="bg-white p-4 rounded-2xl shadow-inner border border-gray-100">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Credencial Digital</span>
+                        <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">Válido</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=CHBT-VALID-9923" alt="QR" class="w-48 h-48 mb-4">
+                        <p class="text-lg font-mono text-gray-800 tracking-widest">CHBT-9923-X</p>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <button onclick="showSection('welcome-view')" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 rounded-xl transition duration-300">
+                        Regresar al inicio
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="p-4 bg-white/30 text-center text-xs text-gray-500 uppercase tracking-tighter">
+            Provincia del Chubut - 2024
+        </div>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            document.getElementById('welcome-view').classList.add('hidden');
+            document.getElementById('pass-view').classList.add('hidden');
+
+            const target = document.getElementById(sectionId);
+            target.classList.remove('hidden');
+            target.classList.add('animate-fade-in');
+        }
+    </script>
+</body>
+</html>
