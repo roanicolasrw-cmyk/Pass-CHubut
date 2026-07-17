@@ -25,7 +25,8 @@ data class Reserve(
     val location: String,
     val imageUrl: String = "",
     val isOpen: Boolean = true,
-    val visitorCount: Int = 0
+    val visitorCount: Int = 0,
+    val weatherAlert: String? = null
 )
 
 @Entity(tableName = "tickets")
@@ -226,7 +227,8 @@ class ChubutRepository(private val dao: ChubutDao) {
                 description = "Patrimonio de la Humanidad. Avistaje de Ballena Franca Austral, elefantes y lobos marinos, orcas y aves playeras.",
                 location = "Viedma, Chubut (Acceso por Pto. Madryn)",
                 isOpen = true,
-                visitorCount = 1450
+                visitorCount = 1450,
+                weatherAlert = "Vientos fuertes del sector oeste. Precaución en rutas de ripio."
             ),
             Reserve(
                 id = "punta_tombo",
@@ -242,7 +244,8 @@ class ChubutRepository(private val dao: ChubutDao) {
                 description = "Un bosque de araucariáceas de la era mesozoica convertido en piedra, con formaciones geológicas de colores asombrosos.",
                 location = "Sarmiento, Chubut",
                 isOpen = true,
-                visitorCount = 310
+                visitorCount = 310,
+                weatherAlert = "Alerta por altas temperaturas. Se recomienda hidratación constante."
             ),
             Reserve(
                 id = "cabo_dos_bahias",
