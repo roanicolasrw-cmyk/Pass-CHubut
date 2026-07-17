@@ -10,6 +10,11 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- QR Code Library for Local Generation and Download -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Firebase for Online Database -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f4f9fa; }
@@ -122,6 +127,26 @@
     </div>
 
     <script>
+        // --- FIREBASE CONFIGURATION (ONLINE DATABASE) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAs-DEMO-KEY",
+            authDomain: "pass-chubut.firebaseapp.com",
+            projectId: "pass-chubut",
+            storageBucket: "pass-chubut.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdef123456"
+        };
+
+        // Initialize Firebase (Using compat mode for easy single-file integration)
+        let db = null;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            console.log("Sistema de base de datos online activado.");
+        } catch(e) {
+            console.warn("Base de datos en modo local (Offline). Configure Firebase para activar persistencia online.");
+        }
+
         const reserves = [
             { id: 'pv', name: 'Península Valdés', loc: 'Pto. Madryn', alert: 'Vientos fuertes.' },
             { id: 'pt', name: 'Punta Tombo', loc: 'Rawson', alert: null },
@@ -135,15 +160,37 @@
         };
 
         let prices = JSON.parse(localStorage.getItem('chubut_prices') || JSON.stringify(defaultPrices));
-        let tickets = JSON.parse(localStorage.getItem('chubut_tickets') || '[]');
+        let tickets = [];
         let selectedReserve = null;
         let currentVisitors = [];
 
-        function init() {
+        async function init() {
             renderReserves();
+            await syncTickets(); // Fetch from Online DB
             renderTickets();
             renderPriceEditor();
             updateAdminStats();
+        }
+
+        // --- ONLINE SYNC ---
+        async function syncTickets() {
+            if (db) {
+                try {
+                    const snapshot = await db.collection('tickets').orderBy('timestamp', 'desc').limit(20).get();
+                    const onlineTickets = [];
+                    snapshot.forEach(doc => onlineTickets.push(doc.data()));
+                    // Merge or replace local tickets
+                    if (onlineTickets.length > 0) {
+                        tickets = onlineTickets;
+                        localStorage.setItem('chubut_tickets', JSON.stringify(tickets));
+                    }
+                } catch(e) {
+                    console.error("Error al sincronizar con la base de datos online:", e);
+                    tickets = JSON.parse(localStorage.getItem('chubut_tickets') || '[]');
+                }
+            } else {
+                tickets = JSON.parse(localStorage.getItem('chubut_tickets') || '[]');
+            }
         }
 
         function renderReserves() {
@@ -163,31 +210,59 @@
         function renderTickets() {
             const container = document.getElementById('tickets-container');
             if (tickets.length === 0) { container.innerHTML = '<div class="text-center py-10 opacity-30"><i class="fas fa-qrcode text-5xl"></i><p class="text-xs mt-2">Sin pases activos</p></div>'; return; }
-            container.innerHTML = tickets.map(t => `
-                <div class="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100">
+
+            container.innerHTML = tickets.map((t, index) => `
+                <div class="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100 animate-fade">
                     <div class="p-3 bg-[#006672] text-white flex justify-between items-center">
                         <span class="text-[10px] font-black uppercase tracking-tighter">Pase Grupal Unificado</span>
                         <span class="text-[10px] font-bold">${t.date}</span>
                     </div>
-                    <div class="p-4 flex gap-4 items-center">
-                        <div class="flex-1 space-y-2">
+                    <div class="p-4 flex flex-col sm:flex-row gap-4 items-center">
+                        <div class="flex-1 space-y-2 w-full text-center sm:text-left">
                             <div>
                                 <p class="text-[9px] font-bold text-gray-400 uppercase">Reserva</p>
                                 <p class="text-sm font-black text-gray-800">${t.reserve}</p>
                             </div>
                             <div>
-                                <p class="text-[9px] font-bold text-gray-400 uppercase">Integrantes (${t.visitors.length})</p>
-                                <p class="text-[11px] font-semibold text-gray-600">${t.visitors.map(v => v.name).join(', ')}</p>
+                                <p class="text-[9px] font-bold text-gray-400 uppercase">Integrantes (${t.visitors ? t.visitors.length : 1})</p>
+                                <p class="text-[11px] font-semibold text-gray-600">${t.visitors ? t.visitors.map(v => v.name).join(', ') : t.name}</p>
                             </div>
                             <p class="text-[9px] font-mono bg-gray-100 inline-block px-2 py-1 rounded text-[#006672]">ID: ${t.id}</p>
                         </div>
-                        <div class="text-center">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${t.id}" class="w-20 h-20 shadow-sm border p-1 rounded-lg">
-                            <p class="text-[8px] mt-1 font-black text-green-600">ACCESO RÁPIDO</p>
+                        <div class="flex flex-col items-center gap-2">
+                            <div id="qr-container-${t.id}" class="bg-white p-1 rounded-lg border shadow-inner"></div>
+                            <button onclick="downloadQR('${t.id}')" class="text-[10px] bg-gray-800 text-white px-4 py-2 rounded-full font-bold flex items-center gap-2">
+                                <i class="fas fa-download"></i> Descargar QR
+                            </button>
+                            <p class="text-[8px] font-black text-green-600 mt-1 uppercase">Válido para Acceso</p>
                         </div>
                     </div>
                 </div>
-            `).reverse().join('');
+            `).join('');
+
+            // Generate QRs locally after rendering HTML
+            tickets.forEach(t => {
+                const container = document.getElementById(`qr-container-${t.id}`);
+                if (container) {
+                    new QRCode(container, {
+                        text: t.id,
+                        width: 100,
+                        height: 100,
+                        colorDark : "#000000",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.H
+                    });
+                }
+            });
+        }
+
+        function downloadQR(id) {
+            const container = document.getElementById(`qr-container-${id}`);
+            const img = container.querySelector('img');
+            const link = document.createElement('a');
+            link.download = `ChubutPass_${id}.png`;
+            link.href = img.src;
+            link.click();
         }
 
         function renderPriceEditor() {
@@ -204,8 +279,8 @@
         }
 
         function updateAdminStats() {
-            const revenue = tickets.reduce((sum, t) => sum + (t.totalPrice || 0), 0);
-            const people = tickets.reduce((sum, t) => sum + (t.visitors.length), 0);
+            const revenue = tickets.reduce((sum, t) => sum + (t.totalPrice || t.price || 0), 0);
+            const people = tickets.reduce((sum, t) => sum + (t.visitors ? t.visitors.length : 1), 0);
             document.getElementById('admin-revenue').innerText = `$${revenue.toLocaleString()}`;
             document.getElementById('admin-count').innerText = people;
         }
@@ -287,7 +362,7 @@
             return total;
         }
 
-        function processPurchase(method) {
+        async function processPurchase(method) {
             const invalid = currentVisitors.some(v => !v.name || !v.doc);
             if (invalid) { alert('Complete todos los datos de los visitantes.'); return; }
 
@@ -297,22 +372,35 @@
             btn.innerHTML = '<i class="fas fa-spinner animate-spin"></i> Procesando...';
             btn.disabled = true;
 
+            const ticketId = 'CHBT-GRP-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+            const newTicket = {
+                id: ticketId,
+                visitors: [...currentVisitors],
+                reserve: selectedReserve.name,
+                date: new Date().toLocaleDateString(),
+                totalPrice: total,
+                timestamp: Date.now()
+            };
+
+            // Save to Online DB (Firestore)
+            if (db) {
+                try {
+                    await db.collection('tickets').doc(ticketId).set(newTicket);
+                } catch(e) {
+                    console.error("Error al guardar en base de datos online:", e);
+                }
+            }
+
+            tickets.unshift(newTicket); // Add to local state (at the beginning)
+            localStorage.setItem('chubut_tickets', JSON.stringify(tickets));
+
             setTimeout(() => {
-                const newTicket = {
-                    id: 'CHBT-GRP-' + Math.random().toString(36).substr(2, 6).toUpperCase(),
-                    visitors: [...currentVisitors],
-                    reserve: selectedReserve.name,
-                    date: new Date().toLocaleDateString(),
-                    totalPrice: total
-                };
-                tickets.push(newTicket);
-                localStorage.setItem('chubut_tickets', JSON.stringify(tickets));
                 closeModal();
                 showTab('tickets');
                 renderTickets();
                 btn.innerHTML = originalHtml;
                 btn.disabled = false;
-            }, 1800);
+            }, 1200);
         }
 
         init();
