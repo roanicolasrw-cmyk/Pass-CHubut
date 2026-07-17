@@ -1512,7 +1512,7 @@ fun RangerScreen(
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Column {
-                    validationLogs.take(5).forEachIndexed { index, log ->
+                    validationLogs.take(10).forEachIndexed { index, log ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -1580,13 +1580,13 @@ fun RangerScreen(
                                     fontSize = 12.sp
                                 )
                                 Text(
-                                    text = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date(log.timestamp)),
+                                    text = SimpleDateFormat("dd/MM HH:mm", Locale.getDefault()).format(Date(log.timestamp)),
                                     fontSize = 10.sp,
                                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
                                 )
                             }
                         }
-                        if (index < validationLogs.size - 1 && index < 4) {
+                        if (index < validationLogs.size - 1 && index < 9) {
                             Divider(color = MaterialTheme.colorScheme.outlineVariant)
                         }
                     }
@@ -1746,15 +1746,15 @@ fun AdminScreen(
         // Grid of Stats
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             StatItem(
-                title = "Recaudación Total",
-                value = "$${DecimalFormat("#,###").format(stats.totalRevenue)}",
+                title = "Recaudación Hoy",
+                value = "$${DecimalFormat("#,###").format(stats.dailyRevenue)}",
                 icon = Icons.Default.LocalOffer,
                 containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                 textColor = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.weight(1f)
             )
             StatItem(
-                title = "Accesos Validados",
+                title = "Validaciones",
                 value = stats.totalValidations.toString(),
                 icon = Icons.Default.Verified,
                 containerColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.1f),

@@ -1,5 +1,6 @@
 <div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
+  <img src="logo chubut.png" alt="Logo Chubut" height="150" />
+  <img src="logo turismo.png" alt="Logo Turismo" height="150" />
 </div>
 
 # Run and deploy your AI Studio app

@@ -17,26 +17,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap');
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafb;
-            position: relative;
-        }
-
-        /* Subtle and beautiful background image of Chubut coast */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url('https://images.unsplash.com/photo-1544550581-5f7ceaf7f992?auto=format&fit=crop&q=80&w=2000');
-            background-size: cover;
-            background-position: center;
-            opacity: 0.05;
-            z-index: -1;
-            filter: grayscale(100%);
-        }
-
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafb; position: relative; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: url('https://images.unsplash.com/photo-1544550581-5f7ceaf7f992?auto=format&fit=crop&q=80&w=2000'); background-size: cover; background-position: center; opacity: 0.05; z-index: -1; filter: grayscale(100%); }
         .glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.4); }
         .ocean-gradient { background: linear-gradient(135deg, #006672 0%, #004d55 100%); }
         .btn-primary { background-color: #006672; color: white; transition: all 0.3s; }
@@ -45,24 +27,20 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .secure-pulse { animation: pulse 2s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
-
         .logo-text { font-family: 'Inter', sans-serif; letter-spacing: -0.05em; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center">
 
-    <!-- Header with Official Logos -->
     <header class="w-full max-w-2xl bg-white/95 backdrop-blur shadow-sm sticky top-0 z-50 p-3 flex justify-between items-center border-b border-gray-100">
         <div class="flex items-center gap-3">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Escudo_de_la_Provincia_del_Chubut.svg/100px-Escudo_de_la_Provincia_del_Chubut.svg.png"
-                 class="h-10 object-contain" alt="Escudo Provincia del Chubut">
+            <img src="logo chubut.png" class="h-10 object-contain" alt="Escudo Chubut">
             <div class="h-8 w-[1px] bg-gray-200"></div>
             <div class="flex flex-col logo-text">
                 <span class="text-sm font-black text-[#006672] leading-none">CHUBUT</span>
                 <span class="text-[10px] font-extrabold text-amber-600 leading-none uppercase tracking-widest">Patagonia</span>
             </div>
         </div>
-
         <nav class="flex gap-4">
             <button onclick="showTab('reserves')" id="nav-reserves" class="text-[#006672] font-black text-[10px] border-b-2 border-[#006672] pb-1 tracking-widest">INICIO</button>
             <button onclick="showTab('tickets')" id="nav-tickets" class="text-gray-400 font-black text-[10px] pb-1 tracking-widest">PASES</button>
@@ -71,35 +49,23 @@
     </header>
 
     <main class="w-full max-w-2xl p-4 space-y-6 pb-24">
-
         <section id="tab-reserves" class="animate-fade space-y-6">
             <div class="relative w-full h-44 rounded-[2.5rem] overflow-hidden shadow-2xl">
-                <img src="https://images.unsplash.com/photo-1590012314607-cda9d9b699ae?auto=format&fit=crop&q=80&w=1200"
-                     class="w-full h-full object-cover" alt="Paisaje Chubut">
+                <img src="https://images.unsplash.com/photo-1590012314607-cda9d9b699ae?auto=format&fit=crop&q=80&w=1200" class="w-full h-full object-cover" alt="Paisaje Chubut">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent p-8 flex flex-col justify-end">
                     <h2 class="text-white text-3xl font-black leading-none">Chubut Pass</h2>
                     <p class="text-white/80 text-xs mt-2 font-medium">Portal Oficial de Ingresos a Reservas Naturales</p>
                 </div>
             </div>
-
             <div class="grid grid-cols-2 gap-4">
-                <button onclick="showTab('reserves')" class="p-6 bg-white rounded-[2rem] shadow-sm border border-gray-100 flex flex-col items-center gap-3 transition-all active:scale-95">
-                    <div class="w-12 h-12 bg-[#006672]/5 rounded-full flex items-center justify-center">
-                        <i class="fas fa-ticket-alt text-[#006672] text-xl"></i>
-                    </div>
+                <div onclick="showTab('reserves')" class="p-6 bg-white rounded-[2rem] shadow-sm border border-gray-100 flex flex-col items-center gap-3 cursor-pointer transition-all active:scale-95">
+                    <div class="w-12 h-12 bg-[#006672]/5 rounded-full flex items-center justify-center"><i class="fas fa-ticket-alt text-[#006672] text-xl"></i></div>
                     <span class="text-[10px] font-black uppercase text-gray-500 tracking-wider">Comprar Pase</span>
-                </button>
-                <button onclick="openFreeModal()" class="p-6 bg-amber-50/50 rounded-[2rem] shadow-sm border border-amber-100 flex flex-col items-center gap-3 transition-all active:scale-95">
-                    <div class="w-12 h-12 bg-amber-600/10 rounded-full flex items-center justify-center">
-                        <i class="fas fa-id-card text-amber-600 text-xl"></i>
-                    </div>
+                </div>
+                <div onclick="openFreeModal()" class="p-6 bg-amber-50/50 rounded-[2rem] shadow-sm border border-amber-100 flex flex-col items-center gap-3 cursor-pointer transition-all active:scale-95">
+                    <div class="w-12 h-12 bg-amber-600/10 rounded-full flex items-center justify-center"><i class="fas fa-id-card text-amber-600 text-xl"></i></div>
                     <span class="text-[10px] font-black uppercase text-amber-700 tracking-wider">Acceso Free</span>
-                </button>
-            </div>
-
-            <div class="flex items-center gap-3 pl-2">
-                <div class="w-1 h-5 bg-[#006672] rounded-full"></div>
-                <h3 class="text-gray-800 font-black text-xs uppercase tracking-widest">Áreas Naturales Protegidas</h3>
+                </div>
             </div>
             <div id="reserve-container" class="space-y-4"></div>
         </section>
@@ -117,7 +83,6 @@
                     <button onclick="openResidentManager()" class="bg-[#006672] text-white p-3 rounded-2xl shadow-lg"><i class="fas fa-users-cog"></i></button>
                 </div>
             </div>
-
             <div class="bg-white p-6 rounded-[2.5rem] shadow-2xl border border-[#006672]/5 space-y-4">
                 <div id="qr-reader" class="w-full rounded-3xl overflow-hidden border-8 border-gray-50"></div>
                 <div id="scan-result" class="hidden p-5 rounded-3xl text-center space-y-2 border-2"></div>
@@ -126,9 +91,15 @@
                 </button>
             </div>
 
+            <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-gray-100 space-y-4">
+                <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Últimos 10 Escaneos</h4>
+                <div id="scan-logs-container" class="space-y-2">
+                    <p class="text-[10px] text-gray-300 font-bold uppercase text-center py-4">Sin escaneos recientes</p>
+                </div>
+            </div>
             <div class="grid grid-cols-2 gap-4 text-center">
                 <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
-                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Recaudación</p>
+                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Recaudación Hoy</p>
                     <p id="admin-revenue" class="text-xl font-black text-[#006672]">$0</p>
                 </div>
                 <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
@@ -139,33 +110,27 @@
         </section>
     </main>
 
-    <!-- Modals (Maintaining logic, improving rounded corners) -->
+    <!-- Modals -->
     <div id="free-modal" class="fixed inset-0 bg-black/70 z-[100] hidden flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-lg rounded-t-[3rem] sm:rounded-[3rem] max-h-[90vh] flex flex-col animate-fade shadow-2xl">
+        <div class="bg-white w-full max-w-lg rounded-t-[3rem] sm:rounded-[3rem] max-h-[90vh] flex flex-col animate-fade">
             <div class="p-8 border-b flex justify-between items-center bg-amber-50/50">
-                <div>
-                    <h3 class="text-xl font-black text-amber-800">Acreditación Free</h3>
-                    <p class="text-[10px] text-amber-600 font-bold uppercase tracking-widest">Validación de Beneficio</p>
-                </div>
+                <div><h3 class="text-xl font-black text-amber-800">Acreditación Free</h3><p class="text-[10px] text-amber-600 font-bold uppercase">Validación de Beneficio</p></div>
                 <button onclick="closeFreeModal()" class="w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center text-gray-400"><i class="fas fa-times"></i></button>
             </div>
             <div class="p-8 space-y-6 overflow-y-auto">
                 <div class="space-y-4">
-                    <input type="text" id="free-doc" placeholder="Número de DNI" class="w-full p-5 rounded-2xl border-2 border-gray-50 focus:border-amber-500 outline-none font-black text-2xl text-center text-amber-900 bg-gray-50/30">
-                    <select id="free-type" class="w-full p-5 rounded-2xl border-2 border-gray-50 bg-white font-black text-amber-900 shadow-sm outline-none">
-                        <option value="Veterano">Veterano de Malvinas</option>
-                        <option value="Discapacidad">Discapacidad</option>
-                        <option value="Residente">Habitante Interno</option>
-                        <option value="Invitado">Invitado de Habitante</option>
+                    <input type="text" id="free-doc" placeholder="DNI del Titular" class="w-full p-5 rounded-2xl border-2 border-gray-50 focus:border-amber-500 outline-none font-black text-xl text-center bg-gray-50/30">
+                    <select id="free-type" class="w-full p-5 rounded-2xl border-2 border-gray-50 bg-white font-black text-amber-900 outline-none">
+                        <option value="Veterano">Veterano de Malvinas</option><option value="Discapacidad">Discapacidad</option>
+                        <option value="Residente">Habitante Interno</option><option value="Invitado">Invitado de Habitante</option>
                     </select>
-                    <div id="inviter-section" class="hidden animate-fade"><input type="text" id="free-inviter" placeholder="DNI del Residente Anfitrión" class="w-full p-5 rounded-2xl border-2 border-gray-50 outline-none font-black text-center bg-gray-50/30"></div>
+                    <div id="inviter-section" class="hidden"><input type="text" id="free-inviter" placeholder="DNI del Residente Anfitrión" class="w-full p-5 rounded-2xl border-2 border-gray-50 outline-none font-black text-center bg-gray-50/30"></div>
                 </div>
                 <button onclick="checkEligibilityAndProcess()" class="w-full bg-amber-600 text-white font-black py-6 rounded-3xl shadow-xl transition-all active:scale-95 uppercase tracking-widest text-sm">Validar y Generar</button>
             </div>
         </div>
     </div>
 
-    <!-- Other Modals (Logic remains, styling consistent) -->
     <div id="buy-modal" class="fixed inset-0 bg-black/70 z-[100] hidden flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-lg rounded-t-[3rem] sm:rounded-[3rem] max-h-[95vh] flex flex-col animate-fade shadow-2xl">
             <div class="p-8 border-b flex justify-between items-center">
@@ -202,40 +167,80 @@
         </div>
     </div>
 
-    <!-- Footer Logos -->
     <footer class="w-full max-w-2xl p-12 flex flex-col items-center gap-6 opacity-40 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-700">
         <div class="flex items-center gap-8">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Escudo_de_la_Provincia_del_Chubut.svg/100px-Escudo_de_la_Provincia_del_Chubut.svg.png" class="h-10" alt="Escudo Chubut">
+            <img src="logo chubut.png" class="h-10" alt="Escudo Chubut">
             <div class="text-left border-l pl-8 border-gray-300">
                 <p class="text-[10px] font-black tracking-[0.2em] uppercase text-gray-600">Provincia del Chubut</p>
                 <p class="text-[8px] font-bold text-gray-400 mt-1 uppercase">Ministerio de Turismo y Áreas Protegidas</p>
             </div>
         </div>
-        <div class="flex flex-col items-center">
-            <div class="flex flex-col logo-text items-center">
-                <span class="text-xs font-black text-[#006672] leading-none">CHUBUT</span>
-                <span class="text-[8px] font-extrabold text-amber-600 leading-none uppercase tracking-[0.3em] mt-0.5">Patagonia</span>
-            </div>
+        <div class="flex flex-col items-center logo-text">
+            <span class="text-xs font-black text-[#006672] leading-none">CHUBUT</span>
+            <span class="text-[8px] font-extrabold text-amber-600 leading-none uppercase tracking-[0.3em] mt-0.5">Patagonia</span>
             <p class="text-[7px] font-black text-gray-300 mt-8 uppercase tracking-[0.5em]">Oficial &bull; 2024</p>
         </div>
     </footer>
 
     <script>
-        const reserves = [
-            { id: 'pv', name: 'Península Valdés', loc: 'Reserva Natural - Patrimonio Mundial' },
-            { id: 'pt', name: 'Punta Tombo', loc: 'Área Natural Protegida' },
-            { id: 'bs', name: 'Bosque Sarmiento', loc: 'Monumento Natural' }
-        ];
-        let prices = JSON.parse(localStorage.getItem('chubut_prices') || JSON.stringify({ 'Chubut_Mayor': 10000, 'Chubut_Menor': 8000, 'Nacional_Mayor': 18000, 'Nacional_Menor': 10000, 'Extranjero_Mayor': 50000, 'Extranjero_Menor': 35000 }));
+        const reserves = [{ id: 'pv', name: 'Península Valdés', loc: 'Reserva Natural - Patrimonio Mundial' }, { id: 'pt', name: 'Punta Tombo', loc: 'Área Natural Protegida' }, { id: 'bs', name: 'Bosque Sarmiento', loc: 'Monumento Natural' }];
+
+        // --- PRECIOS ACTUALIZADOS ---
+        let prices = JSON.parse(localStorage.getItem('chubut_prices') || JSON.stringify({
+            'Chubut_Mayor': 10000, 'Chubut_Menor': 8000, 'Chubut_Jubilado': 8000,
+            'Nacional_Mayor': 18000, 'Nacional_Menor': 1000, 'Nacional_Jubilado': 10000,
+            'Extranjero_Mayor': 50000, 'Extranjero_Menor': 35000
+        }));
+
         let tickets = [], officialList = JSON.parse(localStorage.getItem('chubut_official_list') || '[]'), selectedReserve = reserves[0], currentVisitors = [], html5QrCode = null;
 
         async function init() { renderReserves(); tickets = JSON.parse(localStorage.getItem('chubut_tickets') || '[]'); renderTickets(); updateAdminStats(); }
+
+        function getISO() { return new Date().toISOString().split('T')[0]; }
+
         function renderReserves() { document.getElementById('reserve-container').innerHTML = reserves.map(res => `<div class="bg-white rounded-[2rem] shadow-sm border border-gray-50 p-6 flex justify-between items-center hover:shadow-xl transition-all group"><div class="flex items-center gap-5"><div class="w-14 h-14 bg-gray-50 rounded-[1.2rem] flex items-center justify-center group-hover:bg-[#006672]/5 transition-colors"><i class="fas fa-map-marker-alt text-[#006672] text-xl"></i></div><div><h4 class="font-black text-gray-800 text-lg leading-none">${res.name}</h4><p class="text-[10px] text-gray-400 font-black uppercase mt-2 tracking-tighter">${res.loc}</p></div></div><button onclick="openModal('${res.id}')" class="bg-gray-900 text-white text-[10px] font-black px-6 py-3 rounded-2xl shadow-lg uppercase active:scale-95 transition-all">Reservar</button></div>`).join(''); }
-        function renderTickets() { const container = document.getElementById('tickets-container'); if (tickets.length === 0) { container.innerHTML = '<div class="bg-white p-16 rounded-[3rem] text-center border-2 border-dashed border-gray-100"><i class="fas fa-qrcode text-5xl text-gray-100 mb-4"></i><p class="text-[10px] font-black text-gray-300 uppercase tracking-[0.3em]">Sin pases activos</p></div>'; return; } container.innerHTML = tickets.map(t => `<div class="bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-gray-50 mb-8 animate-fade"><div class="p-5 ${t.isFree ? 'bg-amber-600' : 'bg-[#006672]'} text-white flex justify-between items-center"><div class="flex items-center gap-2"><i class="fas ${t.isFree ? 'fa-id-badge' : 'fa-users'} text-xs opacity-50"></i><span class="text-[9px] font-black uppercase tracking-[0.2em]">Pase ${t.isFree ? 'Acreditado' : 'Grupal'}</span></div><span class="text-[10px] bg-black/20 px-3 py-1 rounded-full font-mono secure-pulse" id="timer-${t.id}"></span></div><div class="p-8 flex flex-col sm:flex-row gap-8 items-center ${t.scanCount >= (t.isFree ? 2 : 1) ? 'grayscale opacity-30' : ''}"><div class="flex-1 w-full text-center sm:text-left space-y-4"><h4 class="text-xl font-black text-gray-800 leading-tight">${t.reserve}</h4><div class="space-y-1"><p class="text-[9px] font-black text-gray-300 uppercase tracking-widest">Titular(es)</p><p class="text-xs font-bold text-gray-600">${t.visitors ? t.visitors.map(v => v.name).join(', ') : t.name}</p></div><div class="flex justify-between items-center pt-4 border-t border-gray-50"><p class="text-[9px] font-mono bg-gray-50 px-3 py-1.5 rounded-xl text-[#006672] font-black uppercase">ID: ${t.id}</p><p class="text-[10px] font-black text-gray-300 uppercase">${t.date}</p></div></div><div class="flex flex-col items-center gap-4"><div id="qr-container-${t.id}" class="p-3 bg-white rounded-[2rem] shadow-inner border border-gray-100"></div><button onclick="downloadQR('${t.id}')" class="text-[10px] bg-gray-900 text-white px-8 py-3 rounded-2xl font-black shadow-xl uppercase tracking-widest active:scale-95">Descargar</button></div></div></div>`).join(''); tickets.forEach(t => { const qrDiv = document.getElementById(`qr-container-${t.id}`); if (qrDiv && !qrDiv.hasChildNodes()) { new QRCode(qrDiv, { text: t.id, width: 120, height: 120, correctLevel: QRCode.CorrectLevel.H }); } setInterval(() => { const el = document.getElementById(`timer-${t.id}`); if(el) el.innerText = new Date().toLocaleTimeString(); }, 1000); }); }
+
+        function renderTickets() {
+            const container = document.getElementById('tickets-container');
+            if (tickets.length === 0) { container.innerHTML = '<div class="bg-white p-16 rounded-[3rem] text-center border-2 border-dashed border-gray-100"><i class="fas fa-qrcode text-5xl text-gray-100 mb-4"></i><p class="text-[10px] font-black text-gray-300 uppercase tracking-[0.3em]">Sin pases activos</p></div>'; return; }
+            container.innerHTML = tickets.map(t => `<div class="bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-gray-50 mb-8 animate-fade"><div class="p-5 ${t.isFree ? 'bg-amber-600' : 'bg-[#006672]'} text-white flex justify-between items-center"><div class="flex items-center gap-2"><i class="fas ${t.isFree ? 'fa-id-badge' : 'fa-users'} text-xs opacity-50"></i><span class="text-[9px] font-black uppercase tracking-[0.2em]">Pase ${t.isFree ? 'Acreditado' : 'Grupal'}</span></div><span class="text-[10px] bg-black/20 px-3 py-1 rounded-full font-mono secure-pulse" id="timer-${t.id}"></span></div><div class="p-8 flex flex-col sm:flex-row gap-8 items-center ${t.scanCount >= (t.isFree ? 2 : 1) ? 'grayscale opacity-30' : ''}"><div class="flex-1 w-full text-center sm:text-left space-y-4"><h4 class="text-xl font-black text-gray-800 leading-tight">${t.reserve}</h4><div class="space-y-1"><p class="text-[9px] font-black text-gray-300 uppercase tracking-widest">Titular(es)</p><p class="text-xs font-bold text-gray-600">${t.visitors ? t.visitors.map(v => v.name).join(', ') : t.name}</p></div><div class="flex justify-between items-center pt-4 border-t border-gray-50"><p class="text-[9px] font-mono bg-gray-50 px-3 py-1.5 rounded-xl text-[#006672] font-black uppercase">ID: ${t.id}</p><p class="text-[10px] font-black text-gray-300 uppercase">${t.dateStr}</p></div></div><div class="flex flex-col items-center gap-4"><div id="qr-container-${t.id}" class="p-3 bg-white rounded-[2rem] shadow-inner border border-gray-100"></div><button onclick="downloadQR('${t.id}')" class="text-[10px] bg-gray-900 text-white px-8 py-3 rounded-2xl font-black shadow-xl uppercase tracking-widest active:scale-95">Descargar</button></div></div></div>`).join('');
+            tickets.forEach(t => { const qrDiv = document.getElementById(`qr-container-${t.id}`); if (qrDiv && !qrDiv.hasChildNodes()) { new QRCode(qrDiv, { text: t.id, width: 120, height: 120, correctLevel: QRCode.CorrectLevel.H }); } setInterval(() => { const el = document.getElementById(`timer-${t.id}`); if(el) el.innerText = new Date().toLocaleTimeString(); }, 1000); });
+        }
+
         function downloadQR(id) { const container = document.getElementById(`qr-container-${id}`); const canvas = container.querySelector('canvas'); const link = document.createElement('a'); link.download = `ChubutPass_${id}.png`; link.href = canvas.toDataURL("image/png"); link.click(); }
         function startScanner() { document.getElementById('start-scan-btn').classList.add('hidden'); html5QrCode = new Html5Qrcode("qr-reader"); html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, onScanSuccess); }
-        async function onScanSuccess(decodedText) { const ticket = tickets.find(t => t.id === decodedText); const resDiv = document.getElementById('scan-result'); resDiv.classList.remove('hidden'); if (!ticket || ticket.date !== new Date().toLocaleDateString()) { resDiv.className = "p-6 rounded-[2rem] bg-red-600 text-white shadow-2xl border-none"; resDiv.innerHTML = `<i class="fas fa-times-circle text-4xl mb-3"></i><p class="font-black text-xl">PASE INVÁLIDO</p>`; return; } const limit = ticket.isFree ? 2 : 1; if ((ticket.scanCount || 0) >= limit) { resDiv.className = "p-6 rounded-[2rem] bg-gray-900 text-white shadow-2xl"; resDiv.innerHTML = `<i class="fas fa-ban text-4xl mb-3 text-red-500"></i><p class="font-black text-xl uppercase">Uso Agotado</p>`; } else { ticket.scanCount = (ticket.scanCount || 0) + 1; localStorage.setItem('chubut_tickets', JSON.stringify(tickets)); resDiv.className = "p-8 rounded-[2.5rem] bg-green-600 text-white shadow-2xl space-y-4"; resDiv.innerHTML = `<i class="fas fa-check-double text-4xl"></i><p class="font-black text-2xl tracking-tighter">ACCESO PERMITIDO</p><div class="bg-black/10 p-5 rounded-[1.5rem] text-left text-xs space-y-2"><p class="flex justify-between"><b>TITULAR:</b> <span class="font-black">${(ticket.name || ticket.visitors[0].name).toUpperCase()}</span></p><p class="flex justify-between"><b>DNI:</b> <span class="font-black">${ticket.doc || ticket.visitors[0].doc}</span></p><p class="flex justify-between"><b>GRUPO:</b> <span class="font-black">${ticket.visitors ? ticket.visitors.length : 1} PERS.</span></p></div><p class="text-[9px] font-black bg-white/20 rounded-full py-3 uppercase tracking-[0.3em]">Solicitar DNI Físico</p>`; updateAdminStats(); renderTickets(); } }
-        function checkEligibilityAndProcess() { const dni = document.getElementById('free-doc').value, type = document.getElementById('free-type').value, inviter = document.getElementById('free-inviter').value; if(!dni) return; let eligible = (type === 'Invitado') ? officialList.some(r => r.dni === inviter && r.type === 'Residente') : officialList.some(r => r.dni === dni && r.type === type); if(!eligible) { alert('DNI no encontrado en los padrones oficiales.'); return; } const ticketId = 'FREE-' + Math.random().toString(36).substr(2, 6).toUpperCase(); tickets.unshift({ id: ticketId, name: 'Acreditado Verificado', doc: dni, reserve: "Acceso Multireserva", date: new Date().toLocaleDateString(), isFree: true, timestamp: Date.now(), scanCount: 0 }); localStorage.setItem('chubut_tickets', JSON.stringify(tickets)); closeFreeModal(); showTab('tickets'); renderTickets(); }
+
+        async function onScanSuccess(decodedText) {
+            const ticket = tickets.find(t => t.id === decodedText);
+            const resDiv = document.getElementById('scan-result');
+            resDiv.classList.remove('hidden');
+
+            // --- CORRECCIÓN DE VALIDACIÓN DE FECHA ---
+            if (!ticket || ticket.isoDate !== getISO()) {
+                resDiv.className = "p-6 rounded-[2rem] bg-red-600 text-white shadow-2xl border-none";
+                resDiv.innerHTML = `<i class="fas fa-times-circle text-4xl mb-3"></i><p class="font-black text-xl">PASE INVÁLIDO O EXPIRADO</p><p class='text-xs font-bold opacity-70'>Este pase no corresponde al día de hoy (${new Date().toLocaleDateString()})</p>`;
+                return;
+            }
+
+            const limit = ticket.isFree ? 2 : 1;
+            if ((ticket.scanCount || 0) >= limit) {
+                resDiv.className = "p-6 rounded-[2rem] bg-gray-900 text-white shadow-2xl";
+                resDiv.innerHTML = `<i class="fas fa-ban text-4xl mb-3 text-red-500"></i><p class="font-black text-xl uppercase">Uso Agotado</p><p class='text-xs opacity-70'>Ya se realizaron los ${limit} ingresos permitidos.</p>`;
+            } else {
+                ticket.scanCount = (ticket.scanCount || 0) + 1;
+                localStorage.setItem('chubut_tickets', JSON.stringify(tickets));
+
+                let logs = JSON.parse(localStorage.getItem('chubut_scan_logs') || '[]');
+                logs.unshift({ name: ticket.name || (ticket.visitors ? ticket.visitors[0].name : 'Visitante'), date: new Date().toLocaleString() });
+                localStorage.setItem('chubut_scan_logs', JSON.stringify(logs.slice(0, 10)));
+
+                resDiv.className = "p-8 rounded-[2.5rem] bg-green-600 text-white shadow-2xl space-y-4";
+                resDiv.innerHTML = `<i class="fas fa-check-double text-4xl"></i><p class="font-black text-2xl tracking-tighter">ACCESO PERMITIDO</p><div class="bg-black/10 p-5 rounded-[1.5rem] text-left text-xs space-y-2"><p class="flex justify-between"><b>TITULAR:</b> <span class="font-black">${(ticket.name || ticket.visitors[0].name).toUpperCase()}</span></p><p class="flex justify-between"><b>DNI:</b> <span class="font-black">${ticket.doc || ticket.visitors[0].doc}</span></p><p class="flex justify-between"><b>GRUPO:</b> <span class="font-black">${ticket.visitors ? ticket.visitors.length : 1} PERS.</span></p></div><p class="text-[9px] font-black bg-white/20 rounded-full py-3 uppercase tracking-[0.3em]">Solicitar DNI Físico</p>`;
+                updateAdminStats(); renderTickets();
+            }
+        }
+
+        function checkEligibilityAndProcess() { const dni = document.getElementById('free-doc').value, type = document.getElementById('free-type').value, inviter = document.getElementById('free-inviter').value; if(!dni) return; let eligible = (type === 'Invitado') ? officialList.some(r => r.dni === inviter && r.type === 'Residente') : officialList.some(r => r.dni === dni && r.type === type); if(!eligible) { alert('DNI no encontrado en los padrones oficiales.'); return; } const ticketId = 'FREE-' + Math.random().toString(36).substr(2, 6).toUpperCase(); tickets.unshift({ id: ticketId, name: 'Acreditado Verificado', doc: dni, reserve: "Acceso Multireserva", dateStr: new Date().toLocaleDateString(), isoDate: getISO(), isFree: true, timestamp: Date.now(), scanCount: 0 }); localStorage.setItem('chubut_tickets', JSON.stringify(tickets)); closeFreeModal(); showTab('tickets'); renderTickets(); }
         function openResidentManager() { document.getElementById('resident-modal').classList.remove('hidden'); renderOfficialList(); }
         function closeResidentManager() { document.getElementById('resident-modal').classList.add('hidden'); }
         function addToList() { const dni = document.getElementById('new-resident-dni').value, type = document.getElementById('new-resident-type').value; if(!dni) return; officialList.push({ dni, type }); localStorage.setItem('chubut_official_list', JSON.stringify(officialList)); document.getElementById('new-resident-dni').value = ''; renderOfficialList(); }
@@ -250,10 +255,62 @@
         function removeVisitor(i) { currentVisitors.splice(i, 1); renderVisitors(); }
         function updateVisitorData(i, f, v) { currentVisitors[i][f] = v; calculateTotal(); }
         function calculateTotal() { let t = currentVisitors.reduce((s, v) => s + prices[`${v.residency}_${v.category}`], 0); document.getElementById('total-price').innerText = `$${t.toLocaleString()}`; return t; }
-        function renderVisitors() { document.getElementById('visitor-list').innerHTML = currentVisitors.map((v, i) => `<div class="bg-gray-50 p-5 rounded-[1.5rem] border border-gray-100 flex gap-3 animate-fade">${i > 0 ? `<button onclick="removeVisitor(${i})" class="text-red-400"><i class="fas fa-times"></i></button>` : ''}<input type="text" placeholder="Nombre" value="${v.name}" onchange="updateVisitorData(${i},'name',this.value)" class="flex-1 p-3 text-xs rounded-xl border-none outline-none font-bold bg-white shadow-sm"><input type="text" placeholder="DNI" value="${v.doc}" onchange="updateVisitorData(${i},'doc',this.value)" class="w-28 p-3 text-xs rounded-xl border-none outline-none font-bold bg-white shadow-sm"></div>`).join(''); calculateTotal(); }
-        function updateAdminStats() { document.getElementById('admin-revenue').innerText = `$${tickets.reduce((s, t) => s + (t.totalPrice || 0), 0).toLocaleString()}`; document.getElementById('admin-scans').innerText = tickets.reduce((s, t) => s + (t.scanCount || 0), 0); }
-        function exportDailyReport() { const data = tickets.map(t => ({ ID: t.id, Fecha: t.date, Tipo: t.isFree ? 'FREE' : 'PAGADO', Integrantes: t.visitors ? t.visitors.length : 1, Total: t.totalPrice || 0 })); const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Ingresos"); XLSX.writeFile(wb, `Reporte_ChubutPass_${new Date().toLocaleDateString()}.xlsx`); }
-        async function processPurchase() { const ticketId = 'CHBT-' + Math.random().toString(36).substr(2, 6).toUpperCase(); tickets.unshift({ id: ticketId, visitors: [...currentVisitors], reserve: selectedReserve.name, date: new Date().toLocaleDateString(), totalPrice: calculateTotal(), timestamp: Date.now(), scanCount: 0 }); localStorage.setItem('chubut_tickets', JSON.stringify(tickets)); closeModal(); showTab('tickets'); renderTickets(); }
+
+        function renderVisitors() {
+            document.getElementById('visitor-list').innerHTML = currentVisitors.map((v, i) => `
+            <div class="bg-gray-50 p-5 rounded-[1.5rem] border border-gray-100 space-y-3 animate-fade relative">
+                ${i > 0 ? `<button onclick="removeVisitor(${i})" class="absolute top-2 right-2 text-red-400"><i class="fas fa-times"></i></button>` : ''}
+                <div class="flex gap-2">
+                    <input type="text" placeholder="Nombre" value="${v.name}" onchange="updateVisitorData(${i},'name',this.value)" class="flex-1 p-3 text-xs rounded-xl border-none outline-none font-bold bg-white shadow-sm">
+                    <input type="text" placeholder="DNI" value="${v.doc}" onchange="updateVisitorData(${i},'doc',this.value)" class="w-28 p-3 text-xs rounded-xl border-none outline-none font-bold bg-white shadow-sm">
+                </div>
+                <div class="flex gap-2">
+                    <select onchange="updateVisitorData(${i},'residency',this.value)" class="flex-1 p-2 text-[9px] font-black rounded-xl border-none bg-white shadow-sm uppercase outline-none">
+                        <option value="Chubut" ${v.residency==='Chubut'?'selected':''}>Residente Chubut</option>
+                        <option value="Nacional" ${v.residency==='Nacional'?'selected':''}>Nacional</option>
+                        <option value="Extranjero" ${v.residency==='Extranjero'?'selected':''}>Extranjero</option>
+                    </select>
+                    <select onchange="updateVisitorData(${i},'category',this.value)" class="flex-1 p-2 text-[9px] font-black rounded-xl border-none bg-white shadow-sm uppercase outline-none">
+                        <option value="Mayor" ${v.category==='Mayor'?'selected':''}>Mayor</option>
+                        <option value="Menor" ${v.category==='Menor'?'selected':''}>Menor</option>
+                        <option value="Jubilado" ${v.category==='Jubilado'?'selected':''}>Jubilado</option>
+                    </select>
+                </div>
+            </div>`).join('');
+            calculateTotal();
+        }
+
+        function updateAdminStats() {
+            const today = getISO();
+            const dailyRevenue = tickets.filter(t => t.isoDate === today).reduce((s, t) => s + (t.totalPrice || 0), 0);
+            document.getElementById('admin-revenue').innerText = `$${dailyRevenue.toLocaleString()}`;
+            document.getElementById('admin-scans').innerText = tickets.reduce((s, t) => s + (t.scanCount || 0), 0);
+            renderScanLogs();
+        }
+
+        function renderScanLogs() {
+            const logs = JSON.parse(localStorage.getItem('chubut_scan_logs') || '[]');
+            const container = document.getElementById('scan-logs-container');
+            if (logs.length === 0) {
+                container.innerHTML = '<p class="text-[10px] text-gray-300 font-bold uppercase text-center py-4">Sin escaneos recientes</p>';
+                return;
+            }
+            container.innerHTML = logs.map(l => `
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-2xl border border-gray-100">
+                    <span class="text-[11px] font-black text-gray-700">${l.name.toUpperCase()}</span>
+                    <span class="text-[9px] font-bold text-gray-400">${l.date}</span>
+                </div>
+            `).join('');
+        }
+        function exportDailyReport() { const data = tickets.map(t => ({ ID: t.id, Fecha: t.dateStr, Tipo: t.isFree ? 'FREE' : 'PAGADO', Integrantes: t.visitors ? t.visitors.length : 1, Total: t.totalPrice || 0 })); const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Ingresos"); XLSX.writeFile(wb, `Reporte_ChubutPass_${new Date().toLocaleDateString()}.xlsx`); }
+
+        async function processPurchase() {
+            if (currentVisitors.some(v => !v.name || !v.doc)) { alert('Por favor, complete todos los datos.'); return; }
+            const ticketId = 'CHBT-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+            tickets.unshift({ id: ticketId, visitors: [...currentVisitors], reserve: selectedReserve.name, dateStr: new Date().toLocaleDateString(), isoDate: getISO(), totalPrice: calculateTotal(), timestamp: Date.now(), scanCount: 0 });
+            localStorage.setItem('chubut_tickets', JSON.stringify(tickets));
+            closeModal(); showTab('tickets'); renderTickets();
+        }
 
         init();
     </script>

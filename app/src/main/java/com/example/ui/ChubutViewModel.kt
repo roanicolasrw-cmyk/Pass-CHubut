@@ -261,6 +261,10 @@ class ChubutViewModel(private val repository: ChubutRepository) : ViewModel() {
         val totalRevenue = validated.sumOf { it.pricePaid }
         val totalValidations = validated.size
         
+        // Daily revenue calculation
+        val todayStr = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
+        val dailyRevenue = validated.filter { it.entryDate == todayStr }.sumOf { it.pricePaid }
+        
         // Percentages by Residency
         val validatedTickets = validated.filter { !it.isAccreditation }
         val residencyGroups = validatedTickets.groupBy { it.residency }
@@ -280,6 +284,7 @@ class ChubutViewModel(private val repository: ChubutRepository) : ViewModel() {
 
         ChubutStats(
             totalRevenue = totalRevenue,
+            dailyRevenue = dailyRevenue,
             totalValidations = totalValidations,
             accreditationsValidated = accCount,
             chubutResidentPct = pctChubut,
@@ -298,6 +303,7 @@ class ChubutViewModel(private val repository: ChubutRepository) : ViewModel() {
 // Data structures for stats
 data class ChubutStats(
     val totalRevenue: Double = 0.0,
+    val dailyRevenue: Double = 0.0,
     val totalValidations: Int = 0,
     val accreditationsValidated: Int = 0,
     val chubutResidentPct: Double = 0.0,
