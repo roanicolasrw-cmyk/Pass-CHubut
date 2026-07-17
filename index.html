@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- QR Code Library for Local Generation and Download -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- QR Scanner Library for Ranger Verification -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <!-- Firebase for Online Database -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
@@ -27,6 +29,8 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #006672; border-radius: 10px; }
+        #qr-reader { border: none !important; }
+        #qr-reader__scan_region { background: white; border-radius: 1rem; overflow: hidden; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center">
@@ -67,22 +71,39 @@
 
         <section id="tab-admin" class="hidden animate-fade space-y-6">
             <h3 class="text-gray-800 font-extrabold text-lg flex items-center gap-2">
-                <i class="fas fa-user-shield text-[#006672]"></i> Panel Administrativo
+                <i class="fas fa-user-shield text-[#006672]"></i> Panel de Control Guardaparque
             </h3>
+
+            <!-- QR Scanner Section -->
+            <div class="bg-white p-4 rounded-2xl shadow-md border border-[#006672]/20 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h4 class="font-bold text-gray-700 text-sm">Validación de Ingresos</h4>
+                    <span class="text-[9px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-bold">LECTOR ACTIVO</span>
+                </div>
+                <div id="qr-reader" class="w-full"></div>
+                <div id="scan-result" class="hidden p-4 rounded-xl text-center space-y-2">
+                    <!-- Scan results here -->
+                </div>
+                <button id="start-scan-btn" onclick="startScanner()" class="w-full ocean-gradient text-white py-3 rounded-xl font-bold text-sm shadow-lg">
+                    <i class="fas fa-camera mr-2"></i> Iniciar Escáner de Pases
+                </button>
+            </div>
+
             <div class="grid grid-cols-2 gap-4">
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase">Recaudación Total</p>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase">Recaudación Online</p>
                     <p id="admin-revenue" class="text-xl font-black text-[#006672]">$0</p>
                 </div>
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase">Personas Admitidas</p>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase">Total de Personas</p>
                     <p id="admin-count" class="text-xl font-black text-[#006672]">0</p>
                 </div>
             </div>
+
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-                <h4 class="font-bold text-gray-700 border-b pb-2">Configuración de Tarifas</h4>
+                <h4 class="font-bold text-gray-700 border-b pb-2">Gestión de Tarifas</h4>
                 <div id="price-editor-list" class="space-y-3"></div>
-                <button onclick="savePrices()" class="w-full btn-primary py-3 rounded-xl font-bold text-sm">Guardar Cambios</button>
+                <button onclick="savePrices()" class="w-full btn-primary py-3 rounded-xl font-bold text-sm">Actualizar Sistema</button>
             </div>
         </section>
     </main>
@@ -96,10 +117,7 @@
             </div>
 
             <div class="flex-1 overflow-y-auto p-6 space-y-6">
-                <div id="visitor-list" class="space-y-4">
-                    <!-- Dinamic visitors -->
-                </div>
-
+                <div id="visitor-list" class="space-y-4"></div>
                 <button onclick="addVisitor()" class="w-full py-3 border-2 border-dashed border-[#006672] text-[#006672] font-bold rounded-xl text-sm">
                     <i class="fas fa-plus-circle"></i> Agregar Persona
                 </button>
@@ -113,7 +131,6 @@
                 </div>
 
                 <div class="space-y-3">
-                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Método de Pago Seguro</p>
                     <button onclick="processPurchase('MP')" id="btn-mp" class="w-full mp-blue text-white font-bold py-4 rounded-2xl flex justify-center items-center gap-2 shadow-lg">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Logo_Mercado_Pago.png/800px-Logo_Mercado_Pago.png" class="h-4 bg-white p-0.5 rounded px-1" alt="MP">
                         Pagar con Mercado Pago
@@ -127,7 +144,8 @@
     </div>
 
     <script>
-        // --- FIREBASE CONFIGURATION (ONLINE DATABASE) ---
+        // --- CONFIGURACIÓN DE FIREBASE (BASE DE DATOS ONLINE) ---
+        // IMPORTANTE: Reemplaza esto con tus credenciales de Firebase Console
         const firebaseConfig = {
             apiKey: "AIzaSyAs-DEMO-KEY",
             authDomain: "pass-chubut.firebaseapp.com",
@@ -137,14 +155,13 @@
             appId: "1:123456789:web:abcdef123456"
         };
 
-        // Initialize Firebase (Using compat mode for easy single-file integration)
         let db = null;
         try {
             firebase.initializeApp(firebaseConfig);
             db = firebase.firestore();
-            console.log("Sistema de base de datos online activado.");
+            console.log("Sistema Cloud Firestore vinculado.");
         } catch(e) {
-            console.warn("Base de datos en modo local (Offline). Configure Firebase para activar persistencia online.");
+            console.warn("Modo Offline: Firebase no configurado.");
         }
 
         const reserves = [
@@ -163,29 +180,23 @@
         let tickets = [];
         let selectedReserve = null;
         let currentVisitors = [];
+        let html5QrCode = null;
 
         async function init() {
             renderReserves();
-            await syncTickets(); // Fetch from Online DB
+            await syncTickets();
             renderTickets();
             renderPriceEditor();
             updateAdminStats();
         }
 
-        // --- ONLINE SYNC ---
         async function syncTickets() {
             if (db) {
                 try {
-                    const snapshot = await db.collection('tickets').orderBy('timestamp', 'desc').limit(20).get();
-                    const onlineTickets = [];
-                    snapshot.forEach(doc => onlineTickets.push(doc.data()));
-                    // Merge or replace local tickets
-                    if (onlineTickets.length > 0) {
-                        tickets = onlineTickets;
-                        localStorage.setItem('chubut_tickets', JSON.stringify(tickets));
-                    }
+                    const snapshot = await db.collection('tickets').orderBy('timestamp', 'desc').limit(50).get();
+                    tickets = snapshot.docs.map(doc => doc.data());
+                    localStorage.setItem('chubut_tickets', JSON.stringify(tickets));
                 } catch(e) {
-                    console.error("Error al sincronizar con la base de datos online:", e);
                     tickets = JSON.parse(localStorage.getItem('chubut_tickets') || '[]');
                 }
             } else {
@@ -211,13 +222,13 @@
             const container = document.getElementById('tickets-container');
             if (tickets.length === 0) { container.innerHTML = '<div class="text-center py-10 opacity-30"><i class="fas fa-qrcode text-5xl"></i><p class="text-xs mt-2">Sin pases activos</p></div>'; return; }
 
-            container.innerHTML = tickets.map((t, index) => `
+            container.innerHTML = tickets.map(t => `
                 <div class="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100 animate-fade">
-                    <div class="p-3 bg-[#006672] text-white flex justify-between items-center">
-                        <span class="text-[10px] font-black uppercase tracking-tighter">Pase Grupal Unificado</span>
+                    <div class="p-3 ${t.validated ? 'bg-gray-400' : 'bg-[#006672]'} text-white flex justify-between items-center">
+                        <span class="text-[10px] font-black uppercase tracking-tighter">Pase Grupal ${t.validated ? 'VALIDADO' : 'ACTIVO'}</span>
                         <span class="text-[10px] font-bold">${t.date}</span>
                     </div>
-                    <div class="p-4 flex flex-col sm:flex-row gap-4 items-center">
+                    <div class="p-4 flex flex-col sm:flex-row gap-4 items-center ${t.validated ? 'grayscale opacity-60' : ''}">
                         <div class="flex-1 space-y-2 w-full text-center sm:text-left">
                             <div>
                                 <p class="text-[9px] font-bold text-gray-400 uppercase">Reserva</p>
@@ -231,55 +242,33 @@
                         </div>
                         <div class="flex flex-col items-center gap-2">
                             <div id="qr-container-${t.id}" class="bg-white p-1 rounded-lg border shadow-inner"></div>
-                            <button onclick="downloadQR('${t.id}')" class="text-[10px] bg-gray-800 text-white px-4 py-2 rounded-full font-bold flex items-center gap-2">
-                                <i class="fas fa-download"></i> Descargar QR
+                            <button onclick="downloadQR('${t.id}')" class="text-[10px] bg-gray-800 text-white px-4 py-2 rounded-full font-bold flex items-center gap-2 shadow-md">
+                                <i class="fas fa-download"></i> Guardar Pase
                             </button>
-                            <p class="text-[8px] font-black text-green-600 mt-1 uppercase">Válido para Acceso</p>
                         </div>
                     </div>
                 </div>
             `).join('');
 
-            // Generate QRs locally after rendering HTML
             tickets.forEach(t => {
-                const container = document.getElementById(`qr-container-${t.id}`);
-                if (container) {
-                    new QRCode(container, {
-                        text: t.id,
-                        width: 100,
-                        height: 100,
-                        colorDark : "#000000",
-                        colorLight : "#ffffff",
-                        correctLevel : QRCode.CorrectLevel.H
-                    });
+                const qrDiv = document.getElementById(`qr-container-${t.id}`);
+                if (qrDiv && !qrDiv.hasChildNodes()) {
+                    new QRCode(qrDiv, { text: t.id, width: 90, height: 90, correctLevel: QRCode.CorrectLevel.H });
                 }
             });
         }
 
         function downloadQR(id) {
             const container = document.getElementById(`qr-container-${id}`);
-            const img = container.querySelector('img');
+            const canvas = container.querySelector('canvas');
             const link = document.createElement('a');
             link.download = `ChubutPass_${id}.png`;
-            link.href = img.src;
+            link.href = canvas.toDataURL("image/png");
             link.click();
         }
 
-        function renderPriceEditor() {
-            const list = document.getElementById('price-editor-list');
-            list.innerHTML = Object.entries(prices).map(([key, val]) => `
-                <div class="flex justify-between items-center text-xs bg-gray-50 p-2 rounded-lg">
-                    <span class="font-bold text-gray-600">${key.replace('_', ' ')}</span>
-                    <div class="flex items-center gap-1">
-                        <span class="text-gray-400 font-bold">$</span>
-                        <input type="number" id="edit-${key}" value="${val}" class="w-20 p-1 border rounded text-right font-black text-[#006672] outline-none">
-                    </div>
-                </div>
-            `).join('');
-        }
-
         function updateAdminStats() {
-            const revenue = tickets.reduce((sum, t) => sum + (t.totalPrice || t.price || 0), 0);
+            const revenue = tickets.reduce((sum, t) => sum + (t.totalPrice || 0), 0);
             const people = tickets.reduce((sum, t) => sum + (t.visitors ? t.visitors.length : 1), 0);
             document.getElementById('admin-revenue').innerText = `$${revenue.toLocaleString()}`;
             document.getElementById('admin-count').innerText = people;
@@ -290,7 +279,17 @@
                 prices[key] = parseInt(document.getElementById(`edit-${key}`).value);
             });
             localStorage.setItem('chubut_prices', JSON.stringify(prices));
-            alert('Configuración de tarifas actualizada en el sistema central.');
+            alert('Tarifas actualizadas localmente.');
+        }
+
+        function renderPriceEditor() {
+            const list = document.getElementById('price-editor-list');
+            list.innerHTML = Object.entries(prices).map(([key, val]) => `
+                <div class="flex justify-between items-center text-xs bg-gray-50 p-2 rounded-lg">
+                    <span class="font-bold text-gray-600">${key.replace('_', ' ')}</span>
+                    <input type="number" id="edit-${key}" value="${val}" class="w-20 p-1 border rounded text-right font-black text-[#006672] outline-none">
+                </div>
+            `).join('');
         }
 
         function showTab(tab) {
@@ -298,7 +297,57 @@
                 document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== tab);
                 document.getElementById(`nav-${t}`).className = t === tab ? 'text-[#006672] font-bold text-sm border-b-2 border-[#006672] pb-1' : 'text-gray-400 font-bold text-sm pb-1';
             });
-            if(tab === 'admin') updateAdminStats();
+            if(tab === 'admin') { updateAdminStats(); } else { stopScanner(); }
+        }
+
+        function startScanner() {
+            document.getElementById('start-scan-btn').classList.add('hidden');
+            html5QrCode = new Html5Qrcode("qr-reader");
+            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+            html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess);
+        }
+
+        function stopScanner() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    document.getElementById('start-scan-btn').classList.remove('hidden');
+                    document.getElementById('scan-result').classList.add('hidden');
+                }).catch(err => console.log(err));
+            }
+        }
+
+        async function onScanSuccess(decodedText) {
+            const ticket = tickets.find(t => t.id === decodedText);
+            const resultDiv = document.getElementById('scan-result');
+            resultDiv.classList.remove('hidden');
+
+            if (!ticket) {
+                resultDiv.className = "p-4 rounded-xl text-center space-y-2 bg-red-100 text-red-700 animate-fade";
+                resultDiv.innerHTML = `<i class="fas fa-times-circle text-3xl"></i><p class="font-bold">PASAPORTE INVÁLIDO</p><p class="text-xs">El código no existe en el sistema oficial.</p>`;
+                return;
+            }
+
+            if (ticket.validated) {
+                resultDiv.className = "p-4 rounded-xl text-center space-y-2 bg-amber-100 text-amber-700 animate-fade";
+                resultDiv.innerHTML = `<i class="fas fa-exclamation-circle text-3xl"></i><p class="font-bold">YA UTILIZADO</p><p class="text-xs">Titular: ${ticket.visitors[0].name}<br>Acceso denegado por duplicación.</p>`;
+            } else {
+                ticket.validated = true;
+                if (db) await db.collection('tickets').doc(ticket.id).update({ validated: true });
+                localStorage.setItem('chubut_tickets', JSON.stringify(tickets));
+
+                resultDiv.className = "p-4 rounded-xl text-center space-y-2 bg-green-100 text-green-700 animate-fade";
+                resultDiv.innerHTML = `
+                    <i class="fas fa-check-circle text-3xl"></i>
+                    <p class="font-black">ACCESO PERMITIDO</p>
+                    <div class="text-[11px] text-left border-t border-green-200 pt-2 mt-2">
+                        <p><b>Reserva:</b> ${ticket.reserve}</p>
+                        <p><b>Integrantes:</b> ${ticket.visitors.length}</p>
+                        <p class="mt-1"><b>Nombres:</b> ${ticket.visitors.map(v => v.name).join(', ')}</p>
+                    </div>
+                `;
+                renderTickets();
+                updateAdminStats();
+            }
         }
 
         function openModal(resId) {
@@ -309,42 +358,27 @@
         }
 
         function closeModal() { document.getElementById('buy-modal').classList.add('hidden'); }
-
-        function addVisitor() {
-            currentVisitors.push({ id: Date.now(), name: '', doc: '', residency: 'Chubut', category: 'Mayor' });
-            renderVisitors();
-        }
-
-        function removeVisitor(index) {
-            if (currentVisitors.length > 1) {
-                currentVisitors.splice(index, 1);
-                renderVisitors();
-            }
-        }
-
-        function updateVisitorData(index, field, value) {
-            currentVisitors[index][field] = value;
-            calculateTotal();
-        }
+        function addVisitor() { currentVisitors.push({ id: Date.now(), name: '', doc: '', residency: 'Chubut', category: 'Mayor' }); renderVisitors(); }
+        function removeVisitor(index) { if (currentVisitors.length > 1) { currentVisitors.splice(index, 1); renderVisitors(); } }
+        function updateVisitorData(i, f, v) { currentVisitors[i][f] = v; calculateTotal(); }
 
         function renderVisitors() {
-            const container = document.getElementById('visitor-list');
-            container.innerHTML = currentVisitors.map((v, i) => `
+            document.getElementById('visitor-list').innerHTML = currentVisitors.map((v, i) => `
                 <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 space-y-3 relative animate-fade">
                     ${i > 0 ? `<button onclick="removeVisitor(${i})" class="absolute top-2 right-2 text-red-400 text-xs"><i class="fas fa-times"></i></button>` : ''}
                     <div class="grid grid-cols-2 gap-2">
-                        <input type="text" placeholder="Nombre completo" value="${v.name}" onchange="updateVisitorData(${i}, 'name', this.value)" class="p-3 text-xs rounded-xl border outline-none">
-                        <input type="text" placeholder="DNI / Pasaporte" value="${v.doc}" onchange="updateVisitorData(${i}, 'doc', this.value)" class="p-3 text-xs rounded-xl border outline-none">
+                        <input type="text" placeholder="Nombre" value="${v.name}" onchange="updateVisitorData(${i}, 'name', this.value)" class="p-3 text-xs rounded-xl border outline-none">
+                        <input type="text" placeholder="DNI" value="${v.doc}" onchange="updateVisitorData(${i}, 'doc', this.value)" class="p-3 text-xs rounded-xl border outline-none">
                     </div>
                     <div class="grid grid-cols-2 gap-2">
-                        <select onchange="updateVisitorData(${i}, 'residency', this.value)" class="p-3 text-[10px] font-bold rounded-xl border bg-white outline-none">
-                            <option value="Chubut" ${v.residency === 'Chubut' ? 'selected' : ''}>Residente Chubut</option>
+                        <select onchange="updateVisitorData(${i}, 'residency', this.value)" class="p-2 text-[10px] font-bold rounded-xl border outline-none">
+                            <option value="Chubut" ${v.residency === 'Chubut' ? 'selected' : ''}>Chubut</option>
                             <option value="Nacional" ${v.residency === 'Nacional' ? 'selected' : ''}>Nacional</option>
                             <option value="Extranjero" ${v.residency === 'Extranjero' ? 'selected' : ''}>Extranjero</option>
                         </select>
-                        <select onchange="updateVisitorData(${i}, 'category', this.value)" class="p-3 text-[10px] font-bold rounded-xl border bg-white outline-none">
+                        <select onchange="updateVisitorData(${i}, 'category', this.value)" class="p-2 text-[10px] font-bold rounded-xl border outline-none">
                             <option value="Mayor" ${v.category === 'Mayor' ? 'selected' : ''}>Mayor</option>
-                            <option value="Menor" ${v.category === 'Menor' ? 'selected' : ''}>Menor / Jubilado</option>
+                            <option value="Menor" ${v.category === 'Menor' ? 'selected' : ''}>Menor / Jub.</option>
                         </select>
                     </div>
                 </div>
@@ -353,54 +387,31 @@
         }
 
         function calculateTotal() {
-            let total = 0;
-            currentVisitors.forEach(v => {
-                total += prices[`${v.residency}_${v.category}`];
-            });
+            let total = currentVisitors.reduce((sum, v) => sum + prices[`${v.residency}_${v.category}`], 0);
             document.getElementById('total-price').innerText = `$${total.toLocaleString()}`;
             document.getElementById('visitor-count-label').innerText = `Total ${currentVisitors.length} ${currentVisitors.length > 1 ? 'Personas' : 'Persona'}`;
             return total;
         }
 
         async function processPurchase(method) {
-            const invalid = currentVisitors.some(v => !v.name || !v.doc);
-            if (invalid) { alert('Complete todos los datos de los visitantes.'); return; }
-
+            if (currentVisitors.some(v => !v.name || !v.doc)) { alert('Complete todos los datos.'); return; }
             const total = calculateTotal();
             const btn = document.getElementById(method === 'MP' ? 'btn-mp' : 'btn-card');
             const originalHtml = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner animate-spin"></i> Procesando...';
+            btn.innerHTML = '<i class="fas fa-spinner animate-spin"></i>';
             btn.disabled = true;
 
             const ticketId = 'CHBT-GRP-' + Math.random().toString(36).substr(2, 6).toUpperCase();
             const newTicket = {
-                id: ticketId,
-                visitors: [...currentVisitors],
-                reserve: selectedReserve.name,
-                date: new Date().toLocaleDateString(),
-                totalPrice: total,
-                timestamp: Date.now()
+                id: ticketId, visitors: [...currentVisitors], reserve: selectedReserve.name,
+                date: new Date().toLocaleDateString(), totalPrice: total, timestamp: Date.now(), validated: false
             };
 
-            // Save to Online DB (Firestore)
-            if (db) {
-                try {
-                    await db.collection('tickets').doc(ticketId).set(newTicket);
-                } catch(e) {
-                    console.error("Error al guardar en base de datos online:", e);
-                }
-            }
-
-            tickets.unshift(newTicket); // Add to local state (at the beginning)
+            if (db) try { await db.collection('tickets').doc(ticketId).set(newTicket); } catch(e) {}
+            tickets.unshift(newTicket);
             localStorage.setItem('chubut_tickets', JSON.stringify(tickets));
 
-            setTimeout(() => {
-                closeModal();
-                showTab('tickets');
-                renderTickets();
-                btn.innerHTML = originalHtml;
-                btn.disabled = false;
-            }, 1200);
+            setTimeout(() => { closeModal(); showTab('tickets'); renderTickets(); btn.innerHTML = originalHtml; btn.disabled = false; }, 1200);
         }
 
         init();
