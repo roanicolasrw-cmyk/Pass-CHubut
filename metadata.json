@@ -1,0 +1,6 @@
+{
+  "name": "Chubut Pass",
+  "description": "Aplicación para el pago de ingreso a Áreas Naturales Protegidas de Chubut con pasarela de pago, validación por código QR, control para guardaparques, estadísticas de visitas y gestión de tarifas.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
