@@ -3,84 +3,291 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pass CHubut - Sistema de Gestión de Pases</title>
+    <title>Pass CHubut - Portal Oficial de Accesos</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2563eb">
+    <meta name="theme-color" content="#006672">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-            animation: fadeIn 0.5s ease-out forwards;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f4f9fa; }
+        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.3); }
+        .ocean-gradient { background: linear-gradient(135deg, #006672 0%, #004d55 100%); }
+        .sand-accent { color: #d97b29; }
+        .btn-primary { background-color: #006672; color: white; transition: all 0.3s; }
+        .btn-primary:hover { background-color: #004d55; transform: translateY(-1px); }
+        .animate-fade { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #006672; border-radius: 10px; }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-500 to-indigo-700 min-h-screen flex flex-col items-center justify-center p-4">
+<body class="min-h-screen flex flex-col items-center">
 
-    <div class="max-w-md w-full glass rounded-3xl shadow-2xl overflow-hidden">
-
-        <div class="p-6 text-center border-b border-gray-200 bg-white/50">
-            <h1 class="text-3xl font-bold text-gray-800">Pass <span class="text-blue-600">CHubut</span></h1>
-            <p class="text-gray-500 text-sm mt-1">Portal Oficial de Accesos</p>
+    <!-- Header Navigation -->
+    <header class="w-full max-w-2xl bg-white shadow-sm sticky top-0 z-50 p-4 flex justify-between items-center border-b border-gray-100">
+        <div class="flex items-center gap-2">
+            <i class="fas fa-map-marked-alt text-[#006672] text-2xl"></i>
+            <div>
+                <h1 class="text-lg font-extrabold text-[#006672] leading-none">Chubut Pass</h1>
+                <p class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Áreas Naturales Protegidas</p>
+            </div>
         </div>
+        <div class="flex gap-4">
+            <button onclick="showTab('reserves')" id="nav-reserves" class="text-[#006672] font-bold text-sm border-b-2 border-[#006672] pb-1">Reservas</button>
+            <button onclick="showTab('tickets')" id="nav-tickets" class="text-gray-400 font-bold text-sm pb-1">Mis Pases</button>
+        </div>
+    </header>
 
-        <div class="p-8 space-y-6">
+    <main class="w-full max-w-2xl p-4 space-y-6 pb-24">
 
-            <div id="welcome-view" class="text-center space-y-4">
-                <div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-qrcode text-4xl text-blue-600"></i>
+        <!-- Tab: Reserves -->
+        <section id="tab-reserves" class="animate-fade space-y-6">
+            <!-- Hero Card -->
+            <div class="relative w-full h-48 rounded-2xl overflow-hidden shadow-xl">
+                <img src="https://images.unsplash.com/photo-1590012314607-cda9d9b699ae?auto=format&fit=crop&q=80&w=800" class="w-full h-full object-cover" alt="Chubut">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-6 flex flex-col justify-end">
+                    <p class="text-amber-400 font-bold text-sm">Ecoturismo Responsable</p>
+                    <h2 class="text-white text-2xl font-black">Reserva de Ingresos Online</h2>
+                    <p class="text-white/80 text-xs">Evite demoras en los puntos de control de guardaparques.</p>
                 </div>
-                <h2 class="text-xl font-semibold text-gray-700">Gestión Digital</h2>
-                <p class="text-gray-600">Acceda a sus credenciales de forma segura y simplificada.</p>
+            </div>
 
-                <button onclick="showSection('pass-view')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl transition duration-300 transform hover:scale-105 shadow-lg">
-                    Acceder a mis pases
+            <h3 class="text-gray-800 font-extrabold text-lg flex items-center gap-2">
+                <i class="fas fa-list-ul text-[#006672]"></i> Seleccione un Área Natural
+            </h3>
+
+            <!-- Reserve List -->
+            <div id="reserve-container" class="space-y-4">
+                <!-- Reserve cards will be injected here -->
+            </div>
+        </section>
+
+        <!-- Tab: My Tickets -->
+        <section id="tab-tickets" class="hidden animate-fade space-y-4">
+            <h3 class="text-gray-800 font-extrabold text-lg flex items-center gap-2">
+                <i class="fas fa-ticket-alt text-[#006672]"></i> Historial de Pases Digitales
+            </h3>
+            <div id="tickets-container" class="space-y-4">
+                <!-- Tickets will be injected here -->
+                <div class="text-center py-12 text-gray-400">
+                    <i class="fas fa-qrcode text-5xl mb-4 opacity-20"></i>
+                    <p>No tiene pases emitidos aún.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal de Compra -->
+    <div id="buy-modal" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[90vh] overflow-y-auto animate-fade">
+            <div class="sticky top-0 bg-white p-6 border-b flex justify-between items-center">
+                <h3 class="text-xl font-bold text-[#006672]">Comprar Entrada Digital</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
+            </div>
+
+            <div class="p-6 space-y-6">
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-gray-500 uppercase">Información del Visitante</label>
+                    <input type="text" id="form-name" placeholder="Nombre y Apellido" class="w-full p-3 rounded-xl border border-gray-200 focus:border-[#006672] outline-none">
+                    <input type="text" id="form-doc" placeholder="DNI / Pasaporte" class="w-full p-3 rounded-xl border border-gray-200 focus:border-[#006672] outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-gray-500 uppercase">Residencia</label>
+                        <select id="form-residency" onchange="updatePrice()" class="w-full p-3 rounded-xl border border-gray-200 bg-white outline-none">
+                            <option value="Chubut">Chubut</option>
+                            <option value="Nacional">Nacional</option>
+                            <option value="Extranjero">Extranjero</option>
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-gray-500 uppercase">Categoría</label>
+                        <select id="form-category" onchange="updatePrice()" class="w-full p-3 rounded-xl border border-gray-200 bg-white outline-none">
+                            <option value="Mayor">Mayor</option>
+                            <option value="Menor">Menor / Jubilado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="bg-[#006672]/5 p-4 rounded-2xl flex justify-between items-center border border-[#006672]/10">
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-500 uppercase">Tarifa Aplicada</p>
+                        <p id="price-detail" class="text-xs font-bold text-[#006672]">Residente Chubut - Mayor</p>
+                    </div>
+                    <p id="total-price" class="text-2xl font-black text-[#006672]">$10,000</p>
+                </div>
+
+                <!-- Simulación Tarjeta -->
+                <div class="ocean-gradient p-6 rounded-2xl text-white space-y-6 shadow-lg">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-black italic">CHUBUT PAGO</span>
+                        <i class="fas fa-shield-alt text-white/50"></i>
+                    </div>
+                    <input type="text" maxlength="16" placeholder="•••• •••• •••• ••••" class="bg-transparent text-center text-xl font-mono w-full outline-none placeholder:text-white/30">
+                    <div class="flex justify-between">
+                        <input type="text" placeholder="TITULAR" class="bg-transparent text-[10px] uppercase outline-none w-2/3 placeholder:text-white/30">
+                        <input type="text" maxlength="5" placeholder="MM/YY" class="bg-transparent text-[10px] outline-none w-1/4 text-right placeholder:text-white/30">
+                    </div>
+                </div>
+
+                <button onclick="processPurchase()" id="btn-pay" class="w-full ocean-gradient text-white font-bold py-4 rounded-2xl shadow-lg flex justify-center items-center gap-2">
+                    <i class="fas fa-check-circle"></i> Confirmar y Generar QR
                 </button>
             </div>
-
-            <div id="pass-view" class="hidden space-y-6 animate-fade-in">
-                <div class="bg-white p-4 rounded-2xl shadow-inner border border-gray-100">
-                    <div class="flex justify-between items-center mb-4">
-                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Credencial Digital</span>
-                        <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">Válido</span>
-                    </div>
-                    <div class="flex flex-col items-center">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=CHBT-VALID-9923" alt="QR" class="w-48 h-48 mb-4">
-                        <p class="text-lg font-mono text-gray-800 tracking-widest">CHBT-9923-X</p>
-                    </div>
-                </div>
-
-                <div class="space-y-3">
-                    <button onclick="showSection('welcome-view')" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 rounded-xl transition duration-300">
-                        Regresar al inicio
-                    </button>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="p-4 bg-white/30 text-center text-xs text-gray-500 uppercase tracking-tighter">
-            Provincia del Chubut - 2024
         </div>
     </div>
 
-    <script>
-        function showSection(sectionId) {
-            document.getElementById('welcome-view').classList.add('hidden');
-            document.getElementById('pass-view').classList.add('hidden');
+    <!-- Footer -->
+    <footer class="w-full max-w-2xl p-6 text-center text-gray-400 text-[10px] uppercase tracking-widest mt-auto">
+        Provincia del Chubut - Ministerio de Turismo - 2024
+    </footer>
 
-            const target = document.getElementById(sectionId);
-            target.classList.remove('hidden');
-            target.classList.add('animate-fade-in');
+    <script>
+        const reserves = [
+            { id: 'pv', name: 'Península Valdés', desc: 'Patrimonio de la Humanidad. Avistaje de Ballenas y fauna marina.', loc: 'Puerto Madryn', alert: 'Vientos fuertes. Precaución en ripio.' },
+            { id: 'pt', name: 'Punta Tombo', desc: 'La mayor pingüinera continental del mundo.', loc: 'Rawson / Trelew', alert: null },
+            { id: 'bs', name: 'Bosque Sarmiento', desc: 'Araucarias milenarias convertidas en piedra.', loc: 'Sarmiento', alert: 'Alerta de calor. Llevar agua.' },
+            { id: 'cdb', name: 'Cabo Dos Bahías', desc: 'Pingüinos, lobos marinos y guanacos salvajes.', loc: 'Camarones', alert: null }
+        ];
+
+        let tickets = JSON.parse(localStorage.getItem('chubut_tickets') || '[]');
+        let selectedReserve = null;
+
+        function init() {
+            renderReserves();
+            renderTickets();
         }
+
+        function renderReserves() {
+            const container = document.getElementById('reserve-container');
+            container.innerHTML = reserves.map(res => `
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="p-4 bg-[#006672]/5 border-b flex justify-between items-center">
+                        <div>
+                            <h4 class="font-bold text-[#006672]">${res.name}</h4>
+                            <p class="text-[10px] text-gray-400"><i class="fas fa-map-marker-alt"></i> ${res.loc}</p>
+                        </div>
+                        <span class="text-[9px] font-bold bg-green-100 text-green-700 px-2 py-1 rounded-full uppercase">Abierto</span>
+                    </div>
+                    <div class="p-4 space-y-3">
+                        <p class="text-xs text-gray-600 leading-relaxed">${res.desc}</p>
+                        ${res.alert ? `
+                            <div class="bg-amber-50 border border-amber-200 p-2 rounded-lg flex items-center gap-2">
+                                <i class="fas fa-exclamation-triangle text-amber-500 text-xs"></i>
+                                <p class="text-[10px] text-amber-800 font-bold">${res.alert}</p>
+                            </div>
+                        ` : ''}
+                        <button onclick="openModal('${res.id}')" class="w-full btn-primary text-xs font-bold py-3 rounded-xl">
+                            Comprar Ingreso
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderTickets() {
+            const container = document.getElementById('tickets-container');
+            if (tickets.length === 0) return;
+
+            container.innerHTML = tickets.map(t => `
+                <div class="bg-white rounded-2xl shadow-md overflow-hidden border-2 ${t.validated ? 'border-gray-200 grayscale' : 'border-[#006672]/20'}">
+                    <div class="p-3 bg-[#006672] text-white flex justify-between items-center">
+                        <span class="text-[9px] font-black tracking-widest uppercase">Pase Digital Oficial</span>
+                        <span class="text-[9px] font-bold">${t.date}</span>
+                    </div>
+                    <div class="p-4 flex gap-4 items-center">
+                        <div class="flex-1 space-y-1">
+                            <p class="text-[10px] text-gray-400 font-bold uppercase">Área Protegida</p>
+                            <p class="text-sm font-black text-gray-800">${t.reserve}</p>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase mt-2">Titular</p>
+                            <p class="text-xs font-bold text-gray-700">${t.name}</p>
+                            <p class="text-[9px] text-[#006672] font-mono mt-1">ID: ${t.id}</p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${t.id}" class="w-20 h-20">
+                            <p class="text-[8px] mt-1 font-bold ${t.validated ? 'text-gray-400' : 'text-green-600'}">
+                                ${t.validated ? 'USADO' : 'VÁLIDO PARA INGRESO'}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `).reverse().join('');
+        }
+
+        function showTab(tab) {
+            document.getElementById('tab-reserves').classList.toggle('hidden', tab !== 'reserves');
+            document.getElementById('tab-tickets').classList.toggle('hidden', tab !== 'tickets');
+
+            document.getElementById('nav-reserves').className = tab === 'reserves' ? 'text-[#006672] font-bold text-sm border-b-2 border-[#006672] pb-1' : 'text-gray-400 font-bold text-sm pb-1';
+            document.getElementById('nav-tickets').className = tab === 'tickets' ? 'text-[#006672] font-bold text-sm border-b-2 border-[#006672] pb-1' : 'text-gray-400 font-bold text-sm pb-1';
+        }
+
+        function openModal(resId) {
+            selectedReserve = reserves.find(r => r.id === resId);
+            document.getElementById('buy-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            updatePrice();
+        }
+
+        function closeModal() {
+            document.getElementById('buy-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        function updatePrice() {
+            const res = document.getElementById('form-residency').value;
+            const cat = document.getElementById('form-category').value;
+            let price = 0;
+
+            if (res === 'Chubut') price = cat === 'Mayor' ? 10000 : 8000;
+            else if (res === 'Nacional') price = cat === 'Mayor' ? 18000 : 10000;
+            else price = cat === 'Mayor' ? 50000 : 35000;
+
+            document.getElementById('total-price').innerText = `$${price.toLocaleString()}`;
+            document.getElementById('price-detail').innerText = `${res} - ${cat}`;
+        }
+
+        function processPurchase() {
+            const name = document.getElementById('form-name').value;
+            const doc = document.getElementById('form-doc').value;
+            const btn = document.getElementById('btn-pay');
+
+            if (!name || !doc) {
+                alert('Por favor complete todos los datos del visitante.');
+                return;
+            }
+
+            btn.innerHTML = '<i class="fas fa-circle-notch animate-spin"></i> Procesando Pago...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                const newTicket = {
+                    id: 'CHBT-' + Math.random().toString(36).substr(2, 6).toUpperCase(),
+                    name: name,
+                    reserve: selectedReserve.name,
+                    date: new Date().toLocaleDateString(),
+                    validated: false
+                };
+                tickets.push(newTicket);
+                localStorage.setItem('chubut_tickets', JSON.stringify(tickets));
+
+                closeModal();
+                showTab('tickets');
+                renderTickets();
+
+                // Reset form
+                document.getElementById('form-name').value = '';
+                document.getElementById('form-doc').value = '';
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> Confirmar y Generar QR';
+                btn.disabled = false;
+            }, 1500);
+        }
+
+        init();
     </script>
 </body>
 </html>
