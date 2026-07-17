@@ -12,7 +12,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
-    <!-- XLSX Library for reports -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
@@ -21,13 +20,12 @@
         body { font-family: 'Inter', sans-serif; background-color: #f4f9fa; }
         .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.3); }
         .ocean-gradient { background: linear-gradient(135deg, #006672 0%, #004d55 100%); }
-        .mp-blue { background-color: #009EE3; }
         .btn-primary { background-color: #006672; color: white; transition: all 0.3s; }
         .btn-primary:hover { background-color: #004d55; transform: translateY(-1px); }
         .animate-fade { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #006672; border-radius: 10px; }
+        .secure-pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center">
@@ -41,101 +39,128 @@
             </div>
         </div>
         <div class="flex gap-4">
-            <button onclick="showTab('reserves')" id="nav-reserves" class="text-[#006672] font-bold text-sm border-b-2 border-[#006672] pb-1">Reservas</button>
+            <button onclick="showTab('reserves')" id="nav-reserves" class="text-[#006672] font-bold text-sm border-b-2 border-[#006672] pb-1">Inicio</button>
             <button onclick="showTab('tickets')" id="nav-tickets" class="text-gray-400 font-bold text-sm pb-1">Mis Pases</button>
-            <button onclick="showTab('admin')" id="nav-admin" class="text-gray-400 font-bold text-sm pb-1">Admin</button>
+            <button onclick="showTab('admin')" id="nav-admin" class="text-gray-400 font-bold text-sm pb-1">Gestión</button>
         </div>
     </header>
 
     <main class="w-full max-w-2xl p-4 space-y-6 pb-24">
 
-        <!-- Tab: Reserves -->
         <section id="tab-reserves" class="animate-fade space-y-6">
-            <div class="relative w-full h-48 rounded-2xl overflow-hidden shadow-xl">
+            <div class="relative w-full h-40 rounded-2xl overflow-hidden shadow-xl">
                 <img src="https://images.unsplash.com/photo-1590012314607-cda9d9b699ae?auto=format&fit=crop&q=80&w=800" class="w-full h-full object-cover" alt="Chubut">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-6 flex flex-col justify-end">
-                    <p class="text-amber-400 font-bold text-sm">Ecoturismo Responsable</p>
-                    <h2 class="text-white text-2xl font-black">Reserva de Ingresos</h2>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent p-6 flex flex-col justify-end">
+                    <h2 class="text-white text-xl font-black">Portal de Ingresos ANP</h2>
+                    <p class="text-white/80 text-xs">Provincia del Chubut</p>
                 </div>
             </div>
 
-            <!-- Acceso Directo a Pases Free -->
-            <div class="bg-amber-50 border border-amber-200 p-4 rounded-2xl flex justify-between items-center shadow-sm">
-                <div>
-                    <h4 class="font-bold text-amber-800 text-sm">¿Sos Veterano, Discapacitado o Residente Interno?</h4>
-                    <p class="text-[10px] text-amber-700">Gestioná tu acreditación sin costo aquí.</p>
-                </div>
-                <button onclick="openFreeModal()" class="bg-amber-600 text-white text-[10px] font-black px-4 py-2 rounded-xl shadow-md uppercase">Solicitar Free</button>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="showTab('reserves')" class="p-4 bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2">
+                    <i class="fas fa-shopping-cart text-[#006672]"></i>
+                    <span class="text-[10px] font-bold uppercase text-gray-600">Comprar Pase</span>
+                </button>
+                <button onclick="openFreeModal()" class="p-4 bg-amber-50 rounded-2xl shadow-sm border border-amber-100 flex flex-col items-center gap-2">
+                    <i class="fas fa-id-card text-amber-600"></i>
+                    <span class="text-[10px] font-bold uppercase text-amber-700">Pase Beneficio</span>
+                </button>
             </div>
 
             <div id="reserve-container" class="space-y-4"></div>
         </section>
 
-        <!-- Tab: My Tickets -->
         <section id="tab-tickets" class="hidden animate-fade space-y-4">
-            <h3 class="text-gray-800 font-extrabold text-lg flex items-center gap-2">
-                <i class="fas fa-ticket-alt text-[#006672]"></i> Mis Credenciales
-            </h3>
+            <h3 class="text-gray-800 font-extrabold text-lg">Mis Credenciales</h3>
             <div id="tickets-container" class="space-y-4"></div>
         </section>
 
-        <!-- Tab: Admin -->
         <section id="tab-admin" class="hidden animate-fade space-y-6">
-            <h3 class="text-gray-800 font-extrabold text-lg flex items-center gap-2">
-                <i class="fas fa-user-shield text-[#006672]"></i> Control y Reportes
-            </h3>
+            <div class="flex justify-between items-center">
+                <h3 class="text-gray-800 font-extrabold text-lg">Panel de Control</h3>
+                <div class="flex gap-2">
+                    <button onclick="exportDailyReport()" class="bg-green-600 text-white p-2 rounded-lg text-xs"><i class="fas fa-file-excel"></i></button>
+                    <button onclick="openResidentManager()" class="bg-[#006672] text-white p-2 rounded-lg text-xs"><i class="fas fa-users-cog"></i></button>
+                </div>
+            </div>
 
-            <!-- QR Scanner Section -->
+            <!-- Scanner -->
             <div class="bg-white p-4 rounded-2xl shadow-md border border-[#006672]/20 space-y-4">
-                <div class="flex justify-between items-center">
-                    <h4 class="font-bold text-gray-700 text-sm">Escáner de Guardafauna</h4>
-                    <span class="text-[9px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-bold uppercase">Lector Bio-Seguro</span>
-                </div>
-                <div id="qr-reader" class="w-full"></div>
+                <div id="qr-reader" class="w-full rounded-xl overflow-hidden"></div>
                 <div id="scan-result" class="hidden p-4 rounded-xl text-center space-y-2 border"></div>
-                <button id="start-scan-btn" onclick="startScanner()" class="w-full ocean-gradient text-white py-3 rounded-xl font-bold text-sm shadow-lg">
-                    <i class="fas fa-camera mr-2"></i> Abrir Cámara de Control
-                </button>
+                <button id="start-scan-btn" onclick="startScanner()" class="w-full ocean-gradient text-white py-4 rounded-xl font-black shadow-lg uppercase tracking-widest">Iniciar Control</button>
             </div>
 
-            <!-- Stats & Report -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-6">
-                <div class="flex justify-between items-center border-b pb-4">
-                    <h4 class="font-bold text-gray-700">Estadísticas del Día</h4>
-                    <button onclick="exportDailyReport()" class="text-[#006672] font-black text-[10px] border border-[#006672] px-3 py-1.5 rounded-lg flex items-center gap-2 hover:bg-[#006672] hover:text-white transition-all">
-                        <i class="fas fa-file-excel"></i> EXPORTAR EXCEL
-                    </button>
+            <!-- Stats -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                    <p class="text-[9px] font-bold text-gray-400 uppercase">Recaudación</p>
+                    <p id="admin-revenue" class="text-lg font-black text-[#006672]">$0</p>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="p-3 bg-gray-50 rounded-xl">
-                        <p class="text-[9px] font-bold text-gray-400 uppercase">Recaudación</p>
-                        <p id="admin-revenue" class="text-xl font-black text-[#006672]">$0</p>
-                    </div>
-                    <div class="p-3 bg-gray-50 rounded-xl">
-                        <p class="text-[9px] font-bold text-gray-400 uppercase">Ingresos (Pers.)</p>
-                        <p id="admin-count" class="text-xl font-black text-[#006672]">0</p>
-                    </div>
-                    <div class="p-3 bg-gray-50 rounded-xl">
-                        <p class="text-[9px] font-bold text-gray-400 uppercase">Pases Free</p>
-                        <p id="admin-free-count" class="text-xl font-black text-amber-600">0</p>
-                    </div>
-                    <div class="p-3 bg-gray-50 rounded-xl">
-                        <p class="text-[9px] font-bold text-gray-400 uppercase">Escaneos Totales</p>
-                        <p id="admin-scans" class="text-xl font-black text-blue-600">0</p>
-                    </div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                    <p class="text-[9px] font-bold text-gray-400 uppercase">Validaciones</p>
+                    <p id="admin-scans" class="text-lg font-black text-blue-600">0</p>
                 </div>
-            </div>
-
-            <!-- Price Editor -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-                <h4 class="font-bold text-gray-700 border-b pb-2">Gestión de Tarifas</h4>
-                <div id="price-editor-list" class="space-y-2"></div>
-                <button onclick="savePrices()" class="w-full btn-primary py-3 rounded-xl font-bold text-sm">Actualizar Tarifario</button>
             </div>
         </section>
     </main>
 
-    <!-- Modal de Compra Grupal -->
+    <!-- Modal Pases Beneficio (Free) -->
+    <div id="free-modal" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[90vh] flex flex-col animate-fade">
+            <div class="p-6 border-b flex justify-between items-center bg-amber-50">
+                <h3 class="text-xl font-bold text-amber-800">Solicitud de Acreditación</h3>
+                <button onclick="closeFreeModal()" class="text-gray-400"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div class="p-6 space-y-6 overflow-y-auto">
+                <div class="space-y-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-gray-400 uppercase ml-2">DNI del Titular</label>
+                        <input type="text" id="free-doc" placeholder="Ingrese DNI" class="w-full p-4 rounded-xl border-2 focus:border-amber-600 outline-none font-bold">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-gray-400 uppercase ml-2">Tipo de Beneficio</label>
+                        <select id="free-type" class="w-full p-4 rounded-xl border-2 bg-white font-bold text-amber-900">
+                            <option value="Veterano">Veterano de Malvinas</option>
+                            <option value="Discapacidad">Persona con Discapacidad</option>
+                            <option value="Residente">Habitante Interno</option>
+                            <option value="Invitado">Invitado de Habitante</option>
+                        </select>
+                    </div>
+                    <div id="inviter-section" class="hidden space-y-1">
+                        <label class="text-[10px] font-bold text-gray-400 uppercase ml-2">DNI del Habitante que invita</label>
+                        <input type="text" id="free-inviter" placeholder="DNI del Residente" class="w-full p-4 rounded-xl border-2 outline-none font-bold">
+                    </div>
+                </div>
+                <button onclick="checkEligibilityAndProcess()" class="w-full bg-amber-600 text-white font-black py-4 rounded-2xl shadow-lg">VERIFICAR Y GENERAR PASE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Manager Residentes (Admin Only) -->
+    <div id="resident-modal" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-3xl p-6 space-y-6">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-bold">Gestión de Listados Oficiales</h3>
+                <button onclick="closeResidentManager()" class="text-gray-400"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="space-y-4">
+                <p class="text-xs text-gray-500">Cargar DNI de persona autorizada para pases FREE.</p>
+                <div class="flex gap-2">
+                    <input type="text" id="new-resident-dni" placeholder="DNI" class="flex-1 p-3 border rounded-xl outline-none">
+                    <select id="new-resident-type" class="p-3 border rounded-xl text-xs font-bold">
+                        <option value="Residente">Habitante</option>
+                        <option value="Veterano">Veterano</option>
+                        <option value="Discapacidad">Discapacidad</option>
+                    </select>
+                    <button onclick="addToList()" class="bg-[#006672] text-white px-4 rounded-xl"><i class="fas fa-plus"></i></button>
+                </div>
+                <div id="resident-list-display" class="max-h-48 overflow-y-auto border rounded-xl p-2 space-y-1"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Compra (Existing logic maintained) -->
     <div id="buy-modal" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[90vh] flex flex-col animate-fade">
             <div class="p-6 border-b flex justify-between items-center">
@@ -144,80 +169,36 @@
             </div>
             <div class="flex-1 overflow-y-auto p-6 space-y-6">
                 <div id="visitor-list" class="space-y-4"></div>
-                <button onclick="addVisitor()" class="w-full py-3 border-2 border-dashed border-[#006672] text-[#006672] font-bold rounded-xl text-sm">
-                    <i class="fas fa-plus-circle"></i> Agregar Persona
-                </button>
-                <div class="bg-[#006672]/5 p-4 rounded-2xl flex justify-between items-center border border-[#006672]/10">
-                    <div>
-                        <p id="visitor-count-label" class="text-[10px] font-bold text-gray-500 uppercase">Total 1 Persona</p>
-                        <p class="text-xs font-bold text-[#006672]">Pase General Unificado</p>
-                    </div>
+                <button onclick="addVisitor()" class="w-full py-3 border-2 border-dashed border-[#006672] text-[#006672] font-bold rounded-xl text-sm">Agregar Persona</button>
+                <div class="bg-[#006672]/5 p-4 rounded-2xl flex justify-between items-center">
                     <p id="total-price" class="text-2xl font-black text-[#006672]">$0</p>
                 </div>
-                <div class="space-y-3">
-                    <button onclick="processPurchase('MP')" id="btn-mp" class="w-full mp-blue text-white font-bold py-4 rounded-2xl flex justify-center items-center gap-2 shadow-lg">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Logo_Mercado_Pago.png/800px-Logo_Mercado_Pago.png" class="h-4 bg-white p-0.5 rounded px-1" alt="MP"> Pagar con Mercado Pago
-                    </button>
-                    <button onclick="processPurchase('CARD')" id="btn-card" class="w-full ocean-gradient text-white font-bold py-4 rounded-2xl flex justify-center items-center gap-2 shadow-lg">
-                        <i class="fas fa-credit-card"></i> Pagar con Tarjeta
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de Pases Free -->
-    <div id="free-modal" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[90vh] flex flex-col animate-fade">
-            <div class="p-6 border-b flex justify-between items-center bg-amber-50">
-                <h3 class="text-xl font-bold text-amber-800">Acreditación Sin Costo</h3>
-                <button onclick="closeFreeModal()" class="text-gray-400"><i class="fas fa-times text-xl"></i></button>
-            </div>
-            <div class="p-6 space-y-6 overflow-y-auto">
-                <div class="space-y-4">
-                    <input type="text" id="free-name" placeholder="Nombre completo" class="w-full p-3 rounded-xl border outline-none">
-                    <input type="text" id="free-doc" placeholder="DNI / Credencial habilitante" class="w-full p-3 rounded-xl border outline-none">
-                    <select id="free-type" class="w-full p-3 rounded-xl border outline-none bg-white font-bold text-amber-900 text-sm">
-                        <option value="Veterano de Malvinas">Veterano de Malvinas</option>
-                        <option value="Discapacidad">Persona con Discapacidad</option>
-                        <option value="Residente Interno">Residente Interno (Fueras de lista)</option>
-                        <option value="Invitado Residente">Invitado de Residente</option>
-                    </select>
-                </div>
-                <div class="bg-amber-100/50 p-4 rounded-xl border border-amber-200">
-                    <p class="text-[10px] text-amber-800 leading-tight"><b>Nota Oficial:</b> Estas acreditaciones son válidas por 24hs y permiten hasta 2 escaneos diarios en el mismo punto de control para facilitar re-ingresos.</p>
-                </div>
-                <button onclick="processFreePass()" class="w-full bg-amber-600 text-white font-black py-4 rounded-2xl shadow-lg">
-                    <i class="fas fa-qrcode mr-2"></i> GENERAR PASE FREE
+                <button onclick="processPurchase('MP')" class="w-full bg-[#009EE3] text-white font-bold py-4 rounded-2xl flex justify-center items-center gap-2">
+                    Pagar con Mercado Pago
                 </button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- CONFIGURACIÓN DE FIREBASE ---
-        const firebaseConfig = { apiKey: "AIzaSyAs-DEMO-KEY", authDomain: "pass-chubut.firebaseapp.com", projectId: "pass-chubut" };
-        let db = null;
-        try { firebase.initializeApp(firebaseConfig); db = firebase.firestore(); } catch(e) {}
-
         const reserves = [
-            { id: 'pv', name: 'Península Valdés', loc: 'Pto. Madryn', alert: 'Vientos fuertes.' },
-            { id: 'pt', name: 'Punta Tombo', loc: 'Rawson', alert: null },
-            { id: 'bs', name: 'Bosque Sarmiento', loc: 'Sarmiento', alert: 'Calor extremo.' }
+            { id: 'pv', name: 'Península Valdés', loc: 'Pto. Madryn' },
+            { id: 'pt', name: 'Punta Tombo', loc: 'Rawson' },
+            { id: 'bs', name: 'Bosque Sarmiento', loc: 'Sarmiento' }
         ];
 
-        let defaultPrices = { 'Chubut_Mayor': 10000, 'Chubut_Menor': 8000, 'Nacional_Mayor': 18000, 'Nacional_Menor': 10000, 'Extranjero_Mayor': 50000, 'Extranjero_Menor': 35000 };
-        let prices = JSON.parse(localStorage.getItem('chubut_prices') || JSON.stringify(defaultPrices));
+        let prices = JSON.parse(localStorage.getItem('chubut_prices') || JSON.stringify({ 'Chubut_Mayor': 10000, 'Chubut_Menor': 8000, 'Nacional_Mayor': 18000, 'Nacional_Menor': 10000, 'Extranjero_Mayor': 50000, 'Extranjero_Menor': 35000 }));
         let tickets = [];
+        let officialList = JSON.parse(localStorage.getItem('chubut_official_list') || '[]'); // {dni: '', type: ''}
         let selectedReserve = reserves[0];
         let currentVisitors = [];
         let html5QrCode = null;
 
-        async function init() { renderReserves(); await syncTickets(); renderTickets(); renderPriceEditor(); updateAdminStats(); }
+        async function init() { renderReserves(); await syncTickets(); renderTickets(); updateAdminStats(); }
 
         async function syncTickets() {
-            if (db) { try { const snap = await db.collection('tickets').orderBy('timestamp', 'desc').limit(100).get(); tickets = snap.docs.map(doc => doc.data()); localStorage.setItem('chubut_tickets', JSON.stringify(tickets)); } catch(e) { tickets = JSON.parse(localStorage.getItem('chubut_tickets') || '[]'); } }
-            else { tickets = JSON.parse(localStorage.getItem('chubut_tickets') || '[]'); }
+            // Simulated cloud sync
+            tickets = JSON.parse(localStorage.getItem('chubut_tickets') || '[]');
         }
 
         function renderReserves() {
@@ -231,41 +212,40 @@
 
         function renderTickets() {
             const container = document.getElementById('tickets-container');
-            if (tickets.length === 0) { container.innerHTML = '<p class="text-center py-10 opacity-30">Sin pases</p>'; return; }
+            if (tickets.length === 0) { container.innerHTML = '<p class="text-center py-10 opacity-30">No tienes pases activos</p>'; return; }
             container.innerHTML = tickets.map(t => `
                 <div class="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100">
                     <div class="p-3 ${t.isFree ? 'bg-amber-600' : 'bg-[#006672]'} text-white flex justify-between items-center">
-                        <span class="text-[10px] font-black uppercase">${t.isFree ? 'Pase Beneficio' : 'Pase Grupal'} ${t.scanCount >= (t.isFree ? 2 : 1) ? '• AGOTADO' : '• ACTIVO'}</span>
-                        <span class="text-[10px] font-bold">${t.date}</span>
+                        <span class="text-[10px] font-black uppercase">Pase ${t.isFree ? 'Beneficio' : 'Oficial'}</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded-full secure-pulse" id="timer-${t.id}"></span>
+                            <span class="text-[10px] font-bold">${t.date}</span>
+                        </div>
                     </div>
-                    <div class="p-4 flex flex-col sm:flex-row gap-4 items-center ${t.scanCount >= (t.isFree ? 2 : 1) ? 'grayscale opacity-50' : ''}">
-                        <div class="flex-1 w-full text-center sm:text-left space-y-1">
+                    <div class="p-4 flex gap-4 items-center ${t.scanCount >= (t.isFree ? 2 : 1) ? 'grayscale opacity-50' : ''}">
+                        <div class="flex-1 space-y-1">
                             <p class="text-sm font-black text-gray-800">${t.reserve}</p>
                             <p class="text-[10px] font-semibold text-gray-600">${t.visitors ? t.visitors.map(v => v.name).join(', ') : t.name}</p>
                             <p class="text-[9px] font-mono text-[#006672]">ID: ${t.id}</p>
                         </div>
-                        <div class="flex flex-col items-center gap-2">
+                        <div class="text-center space-y-2">
                             <div id="qr-container-${t.id}"></div>
-                            <button onclick="downloadQR('${t.id}')" class="text-[9px] bg-gray-800 text-white px-3 py-1.5 rounded-full font-bold">DESCARGAR</button>
+                            <button onclick="downloadQR('${t.id}')" class="text-[9px] bg-gray-800 text-white px-2 py-1 rounded-lg">GUARDAR</button>
                         </div>
                     </div>
                 </div>
             `).join('');
-            tickets.forEach(t => { const qrDiv = document.getElementById(`qr-container-${t.id}`); if (qrDiv && !qrDiv.hasChildNodes()) new QRCode(qrDiv, { text: t.id, width: 80, height: 80 }); });
+            tickets.forEach(t => {
+                const qrDiv = document.getElementById(`qr-container-${t.id}`);
+                if (qrDiv && !qrDiv.hasChildNodes()) new QRCode(qrDiv, { text: t.id, width: 70, height: 70, correctLevel: QRCode.CorrectLevel.H });
+                setInterval(() => {
+                    const el = document.getElementById(`timer-${t.id}`);
+                    if(el) el.innerText = new Date().toLocaleTimeString();
+                }, 1000);
+            });
         }
 
-        function downloadQR(id) { const canvas = document.getElementById(`qr-container-${id}`).querySelector('canvas'); const link = document.createElement('a'); link.download = `ChubutPass_${id}.png`; link.href = canvas.toDataURL(); link.click(); }
-
-        function updateAdminStats() {
-            const revenue = tickets.reduce((sum, t) => sum + (t.totalPrice || 0), 0);
-            const people = tickets.reduce((sum, t) => sum + (t.visitors ? t.visitors.length : 1), 0);
-            const free = tickets.filter(t => t.isFree).length;
-            const scans = tickets.reduce((sum, t) => sum + (t.scanCount || 0), 0);
-            document.getElementById('admin-revenue').innerText = `$${revenue.toLocaleString()}`;
-            document.getElementById('admin-count').innerText = people;
-            document.getElementById('admin-free-count').innerText = free;
-            document.getElementById('admin-scans').innerText = scans;
-        }
+        function downloadQR(id) { const canvas = document.getElementById(`qr-container-${id}`).querySelector('canvas'); const link = document.createElement('a'); link.download = `Pass_${id}.png`; link.href = canvas.toDataURL(); link.click(); }
 
         function startScanner() {
             document.getElementById('start-scan-btn').classList.add('hidden');
@@ -278,78 +258,99 @@
             const resDiv = document.getElementById('scan-result');
             resDiv.classList.remove('hidden');
 
-            if (!ticket) {
-                resDiv.className = "p-4 rounded-xl text-center bg-red-100 text-red-700 animate-fade";
-                resDiv.innerHTML = `<i class="fas fa-times-circle text-2xl"></i><p class="font-bold">PASE INVÁLIDO</p>`;
+            if (!ticket || ticket.date !== new Date().toLocaleDateString()) {
+                resDiv.className = "p-4 rounded-xl bg-red-600 text-white animate-fade";
+                resDiv.innerHTML = `<i class="fas fa-times-circle text-2xl"></i><p class="font-bold">PASE INVÁLIDO O EXPIRADO</p>`;
                 return;
             }
 
             const limit = ticket.isFree ? 2 : 1;
             if ((ticket.scanCount || 0) >= limit) {
-                resDiv.className = "p-4 rounded-xl text-center bg-red-600 text-white animate-fade";
+                resDiv.className = "p-4 rounded-xl bg-red-900 text-white animate-fade";
                 resDiv.innerHTML = `<i class="fas fa-ban text-2xl"></i><p class="font-black">USO AGOTADO (${ticket.scanCount}/${limit})</p>`;
             } else {
                 ticket.scanCount = (ticket.scanCount || 0) + 1;
-                if (db) await db.collection('tickets').doc(ticket.id).update({ scanCount: ticket.scanCount });
                 localStorage.setItem('chubut_tickets', JSON.stringify(tickets));
-                resDiv.className = "p-4 rounded-xl text-center bg-green-500 text-white animate-fade";
-                resDiv.innerHTML = `<i class="fas fa-check-double text-2xl"></i><p class="font-black uppercase">ACCESO PERMITIDO</p><p class="text-[11px]"><b>Integrantes:</b> ${ticket.visitors ? ticket.visitors.length : 1}<br><b>Escaneo:</b> ${ticket.scanCount}/${limit}</p>`;
-                updateAdminStats();
-                renderTickets();
+                resDiv.className = "p-4 rounded-xl bg-green-500 text-white animate-fade space-y-2";
+                resDiv.innerHTML = `
+                    <i class="fas fa-check-double text-2xl"></i>
+                    <p class="font-black text-lg">ACCESO PERMITIDO</p>
+                    <div class="bg-black/10 p-2 rounded text-left text-[11px]">
+                        <p><b>TITULAR:</b> ${ticket.name || ticket.visitors[0].name}</p>
+                        <p><b>DNI:</b> ${ticket.doc || ticket.visitors[0].doc}</p>
+                        <p><b>TIPO:</b> ${ticket.isFree ? 'BENEFICIO FREE' : 'PAGADO'}</p>
+                        <p><b>PERSONAS:</b> ${ticket.visitors ? ticket.visitors.length : 1}</p>
+                    </div>
+                    <p class="text-[9px] font-black uppercase tracking-widest bg-white/20 rounded py-1">SOLICITAR DNI FÍSICO AHORA</p>
+                `;
+                updateAdminStats(); renderTickets();
             }
         }
 
-        function exportDailyReport() {
-            const data = tickets.map(t => ({
-                ID: t.id, Fecha: t.date, Reserva: t.reserve,
-                Tipo: t.isFree ? 'FREE ('+t.freeType+')' : 'PAGADO',
-                Integrantes: t.visitors ? t.visitors.length : 1,
-                Total: t.totalPrice || 0, Escaneos: t.scanCount || 0
-            }));
-            const ws = XLSX.utils.json_to_sheet(data);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Ingresos Diarios");
-            XLSX.writeFile(wb, `Reporte_ChubutPass_${new Date().toLocaleDateString()}.xlsx`);
-        }
-
-        async function processPurchase(method) {
-            if (currentVisitors.some(v => !v.name || !v.doc)) { alert('Faltan datos'); return; }
-            const ticketId = 'CHBT-GRP-' + Math.random().toString(36).substr(2, 6).toUpperCase();
-            const newTicket = { id: ticketId, visitors: [...currentVisitors], reserve: selectedReserve.name, date: new Date().toLocaleDateString(), totalPrice: calculateTotal(), timestamp: Date.now(), scanCount: 0, isFree: false };
-            if (db) try { await db.collection('tickets').doc(ticketId).set(newTicket); } catch(e) {}
-            tickets.unshift(newTicket); localStorage.setItem('chubut_tickets', JSON.stringify(tickets));
-            closeModal(); showTab('tickets'); renderTickets();
-        }
-
-        async function processFreePass() {
-            const name = document.getElementById('free-name').value;
-            const doc = document.getElementById('free-doc').value;
+        function checkEligibilityAndProcess() {
+            const dni = document.getElementById('free-doc').value;
             const type = document.getElementById('free-type').value;
-            if(!name || !doc) { alert('Complete los datos'); return; }
+            const inviter = document.getElementById('free-inviter').value;
+
+            if(!dni) { alert('Ingrese DNI'); return; }
+
+            // Lógica de Validación contra Listado
+            let eligible = false;
+
+            if (type === 'Invitado') {
+                eligible = officialList.some(r => r.dni === inviter && r.type === 'Residente');
+                if(!eligible) { alert('DNI de Residente anfitrión no encontrado en el listado oficial.'); return; }
+            } else {
+                eligible = officialList.some(r => r.dni === dni && r.type === type);
+                if(!eligible) { alert(`El DNI ${dni} no se encuentra empadronado como ${type} en el listado oficial.`); return; }
+            }
+
             const ticketId = 'FREE-' + Math.random().toString(36).substr(2, 6).toUpperCase();
-            const newTicket = { id: ticketId, name: name, doc: doc, reserve: "Todas las Reservas (Multi-Access)", date: new Date().toLocaleDateString(), isFree: true, freeType: type, timestamp: Date.now(), scanCount: 0 };
-            if (db) try { await db.collection('tickets').doc(ticketId).set(newTicket); } catch(e) {}
-            tickets.unshift(newTicket); localStorage.setItem('chubut_tickets', JSON.stringify(tickets));
+            const newTicket = { id: ticketId, name: eligible ? 'Titular Verificado' : 'Acreditado', doc: dni, reserve: "Todas las Reservas", date: new Date().toLocaleDateString(), isFree: true, timestamp: Date.now(), scanCount: 0 };
+            tickets.unshift(newTicket);
+            localStorage.setItem('chubut_tickets', JSON.stringify(tickets));
             closeFreeModal(); showTab('tickets'); renderTickets();
         }
 
-        function openModal(resId) { selectedReserve = reserves.find(r => r.id === resId); currentVisitors = [{ id: Date.now(), name: '', doc: '', residency: 'Chubut', category: 'Mayor' }]; document.getElementById('buy-modal').classList.remove('hidden'); renderVisitors(); }
+        // Admin Management
+        function openResidentManager() {
+            document.getElementById('resident-modal').classList.remove('hidden');
+            renderOfficialList();
+        }
+        function closeResidentManager() { document.getElementById('resident-modal').classList.add('hidden'); }
+        function addToList() {
+            const dni = document.getElementById('new-resident-dni').value;
+            const type = document.getElementById('new-resident-type').value;
+            if(!dni) return;
+            officialList.push({ dni, type });
+            localStorage.setItem('chubut_official_list', JSON.stringify(officialList));
+            document.getElementById('new-resident-dni').value = '';
+            renderOfficialList();
+        }
+        function renderOfficialList() {
+            document.getElementById('resident-list-display').innerHTML = officialList.map((r, i) => `
+                <div class="flex justify-between text-[10px] bg-gray-50 p-2 rounded">
+                    <span><b>${r.dni}</b> (${r.type})</span>
+                    <button onclick="officialList.splice(${i},1);localStorage.setItem('chubut_official_list', JSON.stringify(officialList));renderOfficialList();" class="text-red-500"><i class="fas fa-trash"></i></button>
+                </div>
+            `).join('');
+        }
+
+        // UI Helpers
+        function showTab(t) { ['reserves', 'tickets', 'admin'].forEach(x => { document.getElementById(`tab-${x}`).classList.toggle('hidden', x !== t); document.getElementById(`nav-${x}`).className = x === t ? 'text-[#006672] font-bold text-sm border-b-2 border-[#006672] pb-1' : 'text-gray-400 font-bold text-sm pb-1'; }); if(t!=='admin' && html5QrCode) html5QrCode.stop(); if(t==='admin') updateAdminStats(); }
+        function openModal(id) { selectedReserve = reserves.find(r => r.id === id); currentVisitors = [{ id: Date.now(), name: '', doc: '', residency: 'Chubut', category: 'Mayor' }]; document.getElementById('buy-modal').classList.remove('hidden'); renderVisitors(); }
         function closeModal() { document.getElementById('buy-modal').classList.add('hidden'); }
         function openFreeModal() { document.getElementById('free-modal').classList.remove('hidden'); }
         function closeFreeModal() { document.getElementById('free-modal').classList.add('hidden'); }
-        function showTab(t) { ['reserves', 'tickets', 'admin'].forEach(x => { document.getElementById(`tab-${x}`).classList.toggle('hidden', x !== t); document.getElementById(`nav-${x}`).className = x === t ? 'text-[#006672] font-bold text-sm border-b-2 border-[#006672] pb-1' : 'text-gray-400 font-bold text-sm pb-1'; }); if(t!=='admin' && html5QrCode) html5QrCode.stop(); if(t==='admin') updateAdminStats(); }
+        document.getElementById('free-type').addEventListener('change', (e) => { document.getElementById('inviter-section').classList.toggle('hidden', e.target.value !== 'Invitado'); });
+
         function addVisitor() { currentVisitors.push({ id: Date.now(), name: '', doc: '', residency: 'Chubut', category: 'Mayor' }); renderVisitors(); }
-        function removeVisitor(i) { currentVisitors.splice(i, 1); renderVisitors(); }
         function updateVisitorData(i, f, v) { currentVisitors[i][f] = v; calculateTotal(); }
-        function calculateTotal() { let t = currentVisitors.reduce((s, v) => s + prices[`${v.residency}_${v.category}`], 0); document.getElementById('total-price').innerText = `$${t.toLocaleString()}`; document.getElementById('visitor-count-label').innerText = `Total ${currentVisitors.length} Pers.`; return t; }
-        function renderVisitors() { document.getElementById('visitor-list').innerHTML = currentVisitors.map((v, i) => `
-            <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 space-y-3 relative">
-                ${i > 0 ? `<button onclick="removeVisitor(${i})" class="absolute top-2 right-2 text-red-400 text-xs"><i class="fas fa-times"></i></button>` : ''}
-                <div class="grid grid-cols-2 gap-2"><input type="text" placeholder="Nombre" value="${v.name}" onchange="updateVisitorData(${i},'name',this.value)" class="p-3 text-xs rounded-xl border outline-none"><input type="text" placeholder="DNI" value="${v.doc}" onchange="updateVisitorData(${i},'doc',this.value)" class="p-3 text-xs rounded-xl border outline-none"></div>
-                <div class="grid grid-cols-2 gap-2"><select onchange="updateVisitorData(${i},'residency',this.value)" class="p-2 text-[10px] font-bold rounded-xl border"><option value="Chubut" ${v.residency==='Chubut'?'selected':''}>Chubut</option><option value="Nacional" ${v.residency==='Nacional'?'selected':''}>Nacional</option><option value="Extranjero" ${v.residency==='Extranjero'?'selected':''}>Extranjero</option></select><select onchange="updateVisitorData(${i},'category',this.value)" class="p-2 text-[10px] font-bold rounded-xl border"><option value="Mayor" ${v.category==='Mayor'?'selected':''}>Mayor</option><option value="Menor" ${v.category==='Menor'?'selected':''}>Menor/Jub.</option></select></div>
-            </div>`).join(''); calculateTotal(); }
-        function renderPriceEditor() { document.getElementById('price-editor-list').innerHTML = Object.entries(prices).map(([k, v]) => `<div class="flex justify-between items-center text-xs bg-gray-50 p-2 rounded-lg"><b>${k.replace('_',' ')}</b><input type="number" id="edit-${k}" value="${v}" class="w-20 p-1 border rounded text-right outline-none"></div>`).join(''); }
-        function savePrices() { Object.keys(prices).forEach(k => prices[k] = parseInt(document.getElementById(`edit-${k}`).value)); localStorage.setItem('chubut_prices', JSON.stringify(prices)); alert('Tarifas actualizadas.'); }
+        function calculateTotal() { let t = currentVisitors.reduce((s, v) => s + prices[`${v.residency}_${v.category}`], 0); document.getElementById('total-price').innerText = `$${t.toLocaleString()}`; return t; }
+        function renderVisitors() { document.getElementById('visitor-list').innerHTML = currentVisitors.map((v, i) => `<div class="bg-gray-50 p-3 rounded-xl border flex gap-2"><input type="text" placeholder="Nombre" value="${v.name}" onchange="updateVisitorData(${i},'name',this.value)" class="flex-1 p-2 text-xs rounded-lg border outline-none"><input type="text" placeholder="DNI" value="${v.doc}" onchange="updateVisitorData(${i},'doc',this.value)" class="w-24 p-2 text-xs rounded-lg border outline-none"></div>`).join(''); calculateTotal(); }
+        function updateAdminStats() { document.getElementById('admin-revenue').innerText = `$${tickets.reduce((s, t) => s + (t.totalPrice || 0), 0).toLocaleString()}`; document.getElementById('admin-scans').innerText = tickets.reduce((s, t) => s + (t.scanCount || 0), 0); }
+        function exportDailyReport() { const data = tickets.map(t => ({ ID: t.id, Fecha: t.date, Tipo: t.isFree ? 'FREE' : 'PAGADO', Integrantes: t.visitors ? t.visitors.length : 1, Total: t.totalPrice || 0 })); const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Ingresos"); XLSX.writeFile(wb, `Reporte_${new Date().toLocaleDateString()}.xlsx`); }
+        async function processPurchase() { const ticketId = 'CHBT-' + Math.random().toString(36).substr(2, 6).toUpperCase(); tickets.unshift({ id: ticketId, visitors: [...currentVisitors], reserve: selectedReserve.name, date: new Date().toLocaleDateString(), totalPrice: calculateTotal(), timestamp: Date.now(), scanCount: 0 }); localStorage.setItem('chubut_tickets', JSON.stringify(tickets)); closeModal(); showTab('tickets'); renderTickets(); }
 
         init();
     </script>
