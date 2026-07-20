@@ -824,7 +824,9 @@ fun VisitorScreen(
                         .padding(top = 12.dp, bottom = 4.dp)
                 )
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    listOf("Habitante de la Región (Gratuito)", "Personal Autorizado / Científico", "Evento Especial").forEach { type ->
+                    val catList = if (viewModel.selectedResidency == "Extranjero") listOf("Mayor", "Menor") else listOf("Mayor", "Menor", "Jubilado")
+                    
+                    listOf("Habitante de la Región (Gratuito)", "Veterano de Malvinas", "Discapacidad", "Personal Autorizado / Científico", "Evento Especial").forEach { type ->
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier

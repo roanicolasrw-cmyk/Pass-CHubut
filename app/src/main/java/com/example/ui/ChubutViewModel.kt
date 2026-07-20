@@ -187,6 +187,8 @@ class ChubutViewModel(private val repository: ChubutRepository) : ViewModel() {
 
             val dateStr = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
 
+            val isPermanentPass = accType in listOf("Habitante de la Región (Gratuito)", "Veterano de Malvinas", "Discapacidad")
+
             val ticket = Ticket(
                 id = ticketId,
                 reserveId = selectedReserveId,
@@ -200,6 +202,7 @@ class ChubutViewModel(private val repository: ChubutRepository) : ViewModel() {
                 entryDate = dateStr,
                 isValidated = false,
                 isAccreditation = true,
+                isPermanent = isPermanentPass,
                 accreditationType = accType,
                 eventName = if (accType == "Evento Especial") accEventName else null
             )

@@ -45,6 +45,7 @@ data class Ticket(
     val validatedTimestamp: Long? = null,
     val validatedBy: String? = null,
     val isAccreditation: Boolean = false, // Free access accreditation
+    val isPermanent: Boolean = false,      // No expiration for specific categories
     val accreditationType: String = "", // "Habitante", "Personal Autorizado", "Evento"
     val eventName: String? = null
 )
@@ -178,7 +179,7 @@ class ChubutRepository(private val dao: ChubutDao) {
             return Pair("INVALID", null)
         }
 
-        if (ticket.isValidated) {
+        if (ticket.isValidated && !ticket.isPermanent) {
             val log = ValidationLog(
                 ticketId = ticketId,
                 reserveName = ticket.reserveName,
@@ -191,13 +192,15 @@ class ChubutRepository(private val dao: ChubutDao) {
             return Pair("DUPLICATE", ticket)
         }
 
-        // Mark as validated
+        // Mark as validated (permanent ones stay valid)
         val updatedTicket = ticket.copy(
             isValidated = true,
             validatedTimestamp = System.currentTimeMillis(),
             validatedBy = rangerName
         )
-        dao.updateTicket(updatedTicket)
+        if (!ticket.isPermanent) {
+            dao.updateTicket(updatedTicket)
+        }
         dao.incrementVisitorCount(ticket.reserveId)
 
         // Insert success log
